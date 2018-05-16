@@ -41,104 +41,63 @@ public class main_SPStream_deletion_v1{
     public static int afterMinSupCount = 0 ;
     //check minsup and del item
     //seq, cid:daylist
-    private static HashMap<String, TreeMap<Integer, TreeSet<Integer>>> delItemMap = new HashMap<>();
+    private static TreeMap<String, TreeMap<Integer, TreeSet<Integer>>> delItemMap = new TreeMap<>();
     //put f > inf .seq
     private static ArrayList<String> delinftemp = new ArrayList<>();
 
-
-    //input: seq ; output: del all superstruct from seq
-    private static void delinffunc(String delseq)throws IOException{
-        //del 1-seq
-        
+    
+    //return candidate
+    private static ArrayList<String> findcandidatefunc(ArrayList<String> f2infseq){
         ArrayList<String> removelist = new ArrayList<>();
-        if(StructMap.get(delseq).Seqlengh ==1){
-            String[] del = delseq.split("#");
-            String del1 = del[0]+"&" ;
-
-            for(String compseq : StructMap.keySet()){
-                SequenceStruct temp = StructMap.get(compseq);
-                if(temp.Seqlengh > 1){
-                    String str =  temp.SeqId.ID;
-                    if(str.contains(del1) || str.contains(delseq)){
-                        //System.out.println("del f > inf :"+str);
-                        removelist.add(str);
+        for(String seq : f2infseq){
+            String str = seq.substring(0, seq.length()-1);
+            for(String candi : StructMap.keySet()){
+                if(StructMap.get(candi).Seqlengh == StructMap.get(seq).Seqlengh +1){
+                    //String candidate = funcfirst(candi);
+                    if(candi.contains(str)){
+                        removelist.add(candi);
                     }
                 }
             }
         }
-        
-        for(String remo : removelist){
-            StructMap.remove(remo);
-        }
-
-    }
-
-    private static TreeSet<String> delinffunc1(String delseq){
-        //del 1-seq
-        TreeSet<String> removelist = new TreeSet<>();
-        //del k-seq
-        System.out.println("funccheck");
-
-        if(StructMap.get(delseq).Seqlengh > 1){
-
-            String del1 = delseq.substring(0, delseq.length()-1);
-
-            for(String compseq : StructMap.keySet()){
-                SequenceStruct temp = StructMap.get(compseq);
-                if(temp.Seqlengh > StructMap.get(delseq).Seqlengh){
-                    String str =  temp.SeqId.ID;
-                    if(str.contains(del1) || str.contains(delseq)){
-                        //System.out.println("check soming in here");
-                        //System.out.println("del f > inf :"+str);
-                        removelist.add(str);
-                    }
-                }
-            }
-        }
-        //promblem
+        //System.out.println(removelist);
         return removelist;
     }
-
-    
-    //delcandidate: put delcandidate list
-    private static void delffunc(String delfseq, HashSet<String> delcandidate)throws IOException{
-        int lv = StructMap.get(delfseq).Seqlengh;
-        String delfseqC = delfseq.substring(0, delfseq.length()-1);
+    //return delInfo : map(seq , map(cid, daylist)) 
+    private static TreeMap<String, TreeMap<Integer, TreeSet<Integer>>> deldaylistfunc(ArrayList<String> f2fseq, TreeMap<String, TreeMap<Integer, TreeSet<Integer>>> delItemdaylistInfoMap){
+        TreeMap<String, TreeMap<Integer, TreeSet<Integer>>> delInfomap = new TreeMap<>();
         
-        Iterator<String> itr = StructMap.keySet().iterator();
-        while(itr.hasNext()){
-            String cid = itr.next();
-            SequenceStruct value = StructMap.get(cid);
+        for(String seq : f2fseq){
             
-            //find candidate
-            if(value.Seqlengh == lv+1){
-                String str = funclast(value.SeqId.ID);
-                
-                //找到1個candidate
-                if(str.equals(delfseqC)){
-                    TreeMap<Integer, TreeSet<Integer> > tmap = delItemMap.get(delfseq);
-                    
-                    //丟進去刪除那一個candidate
-                    deldayfunc(delfseq, tmap, cid, delcandidate);
+            String candic = seq.substring(0, seq.length()-1);
+            
+            for(String candidate: StructMap.keySet()){
+                if(StructMap.get(candidate).Seqlengh == StructMap.get(seq).Seqlengh+1){
+                    String str = funclast(candidate);
+                    if(str.equals(candic)){
+                        TreeMap<Integer, TreeSet<Integer>> tmap = delItemdaylistInfoMap.get(seq);
+                        System.out.println("seq: " + seq+ " candidata : "+ candidate +" tmap : "+tmap);
+                        TreeMap<Integer, TreeSet<Integer>> rtmap = deldaylist(seq, candidate, tmap);
+                        if(rtmap.size() != 0){
+                            delInfomap.put(candidate, rtmap);
+                        }
+                    }
                 }
             }
         }
-
+        return delInfomap;
     }
-    //input: (k.ID, k del infomation, k+1candidate)
-    //c -> ca 刪除
-    public static void deldayfunc(String seq, TreeMap<Integer, TreeSet<Integer>> seqdelinfo , String candidate, HashSet<String> delcandidate)throws IOException{
-        //del day alg 一個candidate
-        System.out.println();
-        //System.out.println("func in check : "+ seqdelinfo);
-        System.out.println("seq: "+ seq);
-        System.out.println("candidate: " + candidate);
+
+    //input seq, candidate, delinfo  return candidate delInfomation
+    private static TreeMap<Integer, TreeSet<Integer>> deldaylist(String seq, String candidate, TreeMap<Integer, TreeSet<Integer>> tMap){
+
+        TreeMap<Integer, TreeSet<Integer>> delInfo = new TreeMap<>();
+
         SequenceStruct seqstruct = StructMap.get(seq);
         SequenceStruct candistruct = StructMap.get(candidate);
-        TreeMap<Integer, TreeSet<Integer>> delInfo = new TreeMap<>();
-        //start alg
-        //System.out.println(seqdelinfo);//will null
-        Iterator<Integer> iterator = seqdelinfo.keySet().iterator();
+        
+        
+        Iterator<Integer> iterator = tMap.keySet().iterator();
 
         while(iterator.hasNext()){
             Integer cid = iterator.next();
@@ -148,130 +107,42 @@ public class main_SPStream_deletion_v1{
                 String[] check = candidate.split("#");
 
                 if(check[check.length-1].contains("&")){//不是獨立項目及
-                    TreeSet<Integer> tset = func_togerdel(seqdelinfo.get(cid), origdayset);
+                    TreeSet<Integer> tset = func_togerdel(tMap.get(cid), origdayset);
                     if(tset != null){
                         delInfo.put(cid, tset);
                     }
                 }else{//candistruct is 獨立項目及
-                    TreeSet<Integer> tset = func_onlydel(seqdelinfo.get(cid).last(), candidayset, origdayset);
+                    TreeSet<Integer> tset = func_onlydel(tMap.get(cid).last(), candidayset, origdayset);
                     if(tset != null){
                         delInfo.put(cid, tset);
                     }
                 }
-                //input need change
-                delmarkfunc(candistruct, delInfo);
             }else{
                 //do nothing
             }
         }
-        //do del CIDDAY.null daylist
-        delnulldaylist(candidate);        
-
-
-        //after del check f > inf or f > f
-        if(candistruct.CIDList.size() <  afterMinSupCount){
-            delcandidate.add(candidate);
-            System.out.println("inf"+candidate);
-            //del candidate 組合的candidate func()
-            TreeSet<String> tset = delinffunc1(candidate);
-            for(String s : tset){
-                delcandidate.add(s);
-            }
-
-        //check delinfo
-        }else if(candistruct.CIDList.size() >= afterMinSupCount){
-            int lv = StructMap.get(candidate).Seqlengh;
-            String delfseqC = candidate.substring(0, candidate.length()-1);
-            for(String seqs : StructMap.keySet()){//對每個組合的候選序列
-                SequenceStruct temp = StructMap.get(seqs);
-                if(temp.Seqlengh == lv+1){
-                    String str = funclast(temp.SeqId.ID);
-                    if(str.equals(delfseqC)){//find                        
-                        //System.out.println("tmap: "+tmap+" "+delfseq);
-                        //System.out.println("seq: "+ seq);
-                        //input 1-seq
-                        deldayfunc(candidate, delInfo, seqs, delcandidate);  
-                        //delffunc(candidate, delcandidate);  
-                    }
-                }
-            }
-
-        }
-
-
-/*
-        for(Integer delcid : seqdelinfo.keySet()){//
-            
-            //if have this cid 
-            if(candistruct.CIDList.contains(delcid)){
-                
-                TreeSet<Integer> candidayset = candistruct.CIDDay.get(delcid);
-                TreeSet<Integer> origdayset = seqstruct.CIDDay.get(delcid);
-                //System.out.println("candidayset: " + candidayset);
-                String[] check = candidate.split("#");
-                
-                if(check[check.length-1].contains("&")){//不是獨立項目及
-                    TreeSet<Integer> tset = func_togerdel(seqdelinfo.get(delcid), origdayset);
-                    if(tset != null){
-                        delInfo.put(delcid, tset);
-                    }
-                }else{//candistruct is 獨立項目及
-                    TreeSet<Integer> tset = func_onlydel(seqdelinfo.get(delcid).last(), candidayset, origdayset);
-                    if(tset != null){
-                        delInfo.put(delcid, tset);
-                    }
-                }
-                System.out.println("delinfo"+delInfo);
-                //delmarkfuncßß        
-                delmarkfunc(candistruct, delInfo);       
-            }else{
-                //do nothing
-            }
-            System.out.println("//");*/
-            /*
-            //after del check f > inf or f > f
-            if(candistruct.CIDList.size() <  afterMinSupCount){
-                //remove candidata struct
-                System.out.println("/////////////"+candidate);
-                //StructMap.remove(candidate);
-               Iterator<String> iterator = StructMap.keySet().iterator();
-                while(iterator.hasNext()){
-                    String key = iterator.next();
-                    SequenceStruct value = StructMap.get(key);
-                    if(key.equals(candidate)){
-                        iterator.remove();
-                    }
-                }
-            }else if(candistruct.CIDList.size() >= afterMinSupCount){
-            
-                int lv = StructMap.get(candidate).Seqlengh;
-                String delfseqC = candidate.substring(0, candidate.length()-1);
         
-                for(String seqs : StructMap.keySet()){//對每個組合的候選序列
-                    SequenceStruct temp = StructMap.get(seqs);
-                    if(temp.Seqlengh == lv+1){
-                        String str = funclast(temp.SeqId.ID);
-                        if(str.equals(delfseqC)){//find
-                            //1-struct 拿刪除的資料
-                            TreeMap<Integer, TreeSet<Integer>> tmap = delItemMap.get(candidate);
-                            
-                            //System.out.println("tmap: "+tmap+" "+delfseq);
-                            //System.out.println("seq: "+ seq);
-                            //input 1-seq
-                            deldayfunc(candidate, delInfo, seqs);    
-                        }
-                    }
-                }            
+        return delInfo;
+    }
+
+    private static void delmarkdaylist(TreeMap<String, TreeMap<Integer, TreeSet<Integer>>> delcandidatelistInfoMap){
+        for(String seq : delcandidatelistInfoMap.keySet()){
+            SequenceStruct deltemp = StructMap.get(seq);
+
+            TreeMap<Integer, TreeSet<Integer>> seqdelInfo = delcandidatelistInfoMap.get(seq);
+            
+            for(Integer cid : seqdelInfo.keySet()){
+                deltemp.CIDList.remove(cid);
+                for(Integer day : seqdelInfo.get(cid)){
+                    deltemp.CIDDay.get(cid).remove(day);
+                }
             }
-            System.out.println("here down is check");
-            System.out.println("candidate: "+ candidate);
-            System.out.println(candistruct.CIDDay);
-            System.out.println("******");   
-        }*/
+            
+        }
 
 
     }
-
+     
     private static void delnulldaylist(String seq){
         SequenceStruct temp = StructMap.get(seq);
         TreeMap<Integer, TreeSet<Integer>> tmap = temp.CIDDay;
@@ -304,6 +175,16 @@ public class main_SPStream_deletion_v1{
         
     }
     
+    private static void createfreqfunc(ArrayList<String> f2infseq){
+        
+        /*
+        if == 1 : Compare()
+        
+            else
+                Compare();*/
+    }
+
+
     private static TreeSet<Integer> func_onlydel(int lastdelday, TreeSet<Integer> comptset, TreeSet<Integer> canditset){
         //System.out.println("lastdelday: " + lastdelday);
         //System.out.println("comptset: "+ comptset);
@@ -404,6 +285,7 @@ public class main_SPStream_deletion_v1{
         }
         return set;
     }
+
     //x y = xy, (xy)
     private static void Compare(String x, String y, int MinSupCount, int nowday)throws IOException{
         //System.out.println(x + "x.sup : " + StructMap.get(x).CIDList.size());
@@ -1288,15 +1170,16 @@ public class main_SPStream_deletion_v1{
         System.out.println( "Memory increased:" + MemoryLogger.getInstance().getMaxMemory() + " MB");
         //System.out.println("SUP: "+CIDList.size());
         //System.out.println("f: "+i);
-        //System.out.println("befor keyset: "+StructMap.keySet());
+        System.out.println("befor keyset: "+StructMap.keySet());
         System.out.println("done");
+        
         
 /*    
  *
  *  
  *                                      start deltion
  * 
- * 
+ *            
  * 
  * 
 */      
@@ -1314,13 +1197,10 @@ public class main_SPStream_deletion_v1{
 
             ArrayList<String> beforefseq = sequencepattern;
             System.out.println("beforefseq: " + beforefseq);
+            
+            TreeMap<String, TreeMap<Integer, TreeSet<Integer>>> delItemdaylistInfoMap = new TreeMap<>();
             //check minsup
-            ArrayList<String> freqSeqList = new ArrayList<>();
-            for(String k : StructMap.keySet()){
-                if(StructMap.get(k).CIDList.size() >=(int) Math.ceil(CIDList.size() * minsup)){
-                    freqSeqList.add(k);
-                }
-            }
+            
             HashSet<String> supdownCID = new HashSet<>(); //有減少ＳＵＰ的
             HashSet<Integer> Cidset = new HashSet<>();//檢查customer
             for(String seq1 : StructMap.keySet() ){
@@ -1330,23 +1210,24 @@ public class main_SPStream_deletion_v1{
                         TreeSet<Integer> tday = temp.CIDDay.get(CID);
                         if(tday.contains(nowdelday)){
                             //add del item to map
-                            if(delItemMap.containsKey(seq1)){
-                                TreeMap<Integer, TreeSet<Integer>> tmap = delItemMap.get(seq1);
+                            if(delItemdaylistInfoMap.containsKey(seq1)){
+                                TreeMap<Integer, TreeSet<Integer>> tmap = delItemdaylistInfoMap.get(seq1);
                                 TreeSet<Integer> tset = new TreeSet<>();
                                 tset.add(nowdelday);
                                 tmap.put(CID, tset);
-                                delItemMap.put(seq1, tmap);
+                                delItemdaylistInfoMap.put(seq1, tmap);
                             }else{
                                 TreeSet<Integer> tset = new TreeSet<>();
                                 tset.add(nowdelday);
                                 TreeMap<Integer, TreeSet<Integer>> tmap = new TreeMap<>();
                                 tmap.put(CID, tset);
-                                delItemMap.put(seq1, tmap);
+                                delItemdaylistInfoMap.put(seq1, tmap);
                             }
+                            
                             if(tday.size() == 1){
                                 //no day
                                 supdownCID.add(seq1);
-                                temp.CIDList.remove(CID);
+                                temp.CIDList.remove(CID);//直接移除structmap的list
                             }else{
                                 Cidset.add(CID);
                             }
@@ -1358,16 +1239,91 @@ public class main_SPStream_deletion_v1{
             }
             afterMinSupCount = (int) Math.ceil(Cidset.size() * minsup);
             System.out.println("afterMinSupCount: " + afterMinSupCount);
-
+            
+            
+            
+            int lv = 1;
+            
             
             
             //直到組合不出來
-            while(beforefseq.size()< 2){
-            
+            while(/*beforefseq.size() < 2*/ lv < 2){
+                //put k+1.freqent
+                System.out.println("loop: " + lv);
+                ArrayList<String> frequentsequencelist = new ArrayList<>();
+
+                //find each case 
+                ArrayList<String> f2inflist = new ArrayList<>(); 
+                
+                //f-> inf ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                for(String seq : sequencepattern){
+                    SequenceStruct temp = StructMap.get(seq);
+                    if(temp.Seqlengh == lv && temp.CIDList.size() < afterMinSupCount ){
+                        System.out.println("f -> inf : " + seq);
+                        f2inflist.add(seq);
+                    }    
+                }
+                //del f -> inf candidate
+                for(String k: findcandidatefunc(f2inflist)){
+                    StructMap.remove(k);
+                }
+
+                //f-> f++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                ArrayList<String> f2flist = new ArrayList<>();
+                
+                for(String seq : sequencepattern){
+                    SequenceStruct temp = StructMap.get(seq);
+                    if(temp.Seqlengh == lv && temp.CIDList.size() >= afterMinSupCount){
+                        System.out.println("f -> f : " + seq);
+                        f2flist.add(seq);
+                        frequentsequencelist.add(seq);
+                    }
+                }
+
+                //mark daylist 
+                TreeMap<String, TreeMap<Integer, TreeSet<Integer>>> delcandidatelistInfoMap = deldaylistfunc(f2flist, delItemdaylistInfoMap);
+                System.out.println("return : " + delcandidatelistInfoMap);
+
+                //del daylist
+                delmarkdaylist(delcandidatelistInfoMap);
+                
+                //del nulllist
+                for(String str : delcandidatelistInfoMap.keySet()){
+                    delnulldaylist(str);
+                }
+
+                //del 1-struct
+                if(lv == 1){
+                    delmarkdaylist(delItemdaylistInfoMap);
+                    //del nulllist
+                    for(String str : delItemdaylistInfoMap.keySet()){
+                        delnulldaylist(str);
+                    }
+                }
+                
+ 
+                //inf-> f+++++++++++++++++++++++++++++++++ 
+                ArrayList<String> inf2flist = new ArrayList<>();
+                
+                for(String seq : StructMap.keySet()){
+                    SequenceStruct temp = StructMap.get(seq);
+                    if(temp.Seqlengh == lv && !sequencepattern.contains(seq) && temp.CIDList.size() >= afterMinSupCount){
+                        System.out.println("inf -> f : "+ seq);
+                        inf2flist.add(seq);
+                        frequentsequencelist.add(seq);
+                    }
+                }
+                
+                //create to each other 
+                createfreqfunc(inf2flist);
 
 
 
+                delItemdaylistInfoMap = delcandidatelistInfoMap;
 
+                //sequencepattern = frequentsequencelist;
+                
+                lv++;
             }
 
 
@@ -1376,12 +1332,20 @@ public class main_SPStream_deletion_v1{
             nowdelday++;
         }
 
-
-        
-        
-        
+/*
+        for(String str : StructMap.keySet()){
+            if(StructMap.get(str).Seqlengh == 2){
+                System.out.println("ID: " + str);
+                System.out.println("sup: " + StructMap.get(str).CIDList.size());
+                System.out.println("CidList: " + StructMap.get(str).CIDList);
+                System.out.println("CiDDay: " + StructMap.get(str).CIDDay);
+                System.out.println(">>>>>>>");
+            }
+        }
+        */
+        System.out.println(StructMap.keySet());
         System.out.println("del done");
-        System.out.println("tset");
+        
 
 
     }
