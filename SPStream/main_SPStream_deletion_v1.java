@@ -76,7 +76,7 @@ public class main_SPStream_deletion_v1{
                     String str = funclast(candidate);
                     if(str.equals(candic)){
                         TreeMap<Integer, TreeSet<Integer>> tmap = delItemdaylistInfoMap.get(seq);
-                        System.out.println("seq: " + seq+ " candidata : "+ candidate +" tmap : "+tmap);
+                        //System.out.println("seq: " + seq+ " candidata : "+ candidate +" tmap : "+tmap);
                         TreeMap<Integer, TreeSet<Integer>> rtmap = deldaylist(seq, candidate, tmap);
                         if(rtmap.size() != 0){
                             delInfomap.put(candidate, rtmap);
@@ -132,9 +132,12 @@ public class main_SPStream_deletion_v1{
             TreeMap<Integer, TreeSet<Integer>> seqdelInfo = delcandidatelistInfoMap.get(seq);
             
             for(Integer cid : seqdelInfo.keySet()){
-                deltemp.CIDList.remove(cid);
+                
                 for(Integer day : seqdelInfo.get(cid)){
                     deltemp.CIDDay.get(cid).remove(day);
+                    if(deltemp.CIDDay.get(cid).size()==0){
+                        deltemp.CIDList.remove(cid);;
+                    }
                 }
             }
             
@@ -175,14 +178,284 @@ public class main_SPStream_deletion_v1{
         
     }
     
-    private static void createfreqfunc(ArrayList<String> f2infseq){
-        
-        /*
-        if == 1 : Compare()
-        
-            else
-                Compare();*/
+    private static void createfreqfunc(ArrayList<String> inf2fList, Integer lv){
+       
+        ArrayList<String> freqlist = new ArrayList<>();//put equal lv 
+        for(String seq : StructMap.keySet()){
+            if(StructMap.get(seq).Seqlengh == lv ){
+                if(StructMap.get(seq).CIDList.size() >= afterMinSupCount){
+                    
+                    freqlist.add(seq);
+                }
+            }
+        }
+
+        //System.out.println(inf2fList);
+        //System.out.println(freqlist);
+        for(String inf2fseq : inf2fList){
+            for(String fseq : freqlist){
+                System.out.println("x: " + inf2fList+ " y: "+ fseq);
+                comparefnc(inf2fseq, fseq, lv);
+                comparefnc(fseq, inf2fseq, lv);
+            }
+        }
     }
+
+    private static void comparefnc(String x, String y, Integer lv){
+        if(lv == 1 ){
+            
+            if(x.equals(y)){
+                SeqID xx = new SeqID();
+                if(StructMap.containsKey(xx.ID)){
+
+                }else{
+                    xx.setItemid(x, y);
+                    SequenceStruct yy = new SequenceStruct();
+                    yy.SeqId = xx;
+                    SequenceStruct t = StructMap.get(y);
+                    for(Integer cid : t.CIDList){
+                        if(t.CIDDay.get(cid).size()>1){
+                            TreeSet<Integer> set = new TreeSet<>(t.CIDDay.get(cid));
+                            set.remove(set.first());
+                            yy.CIDList.add(cid);
+                            yy.CIDDay.put(cid, set);
+                        }
+                    }
+                    yy.Seqlengh++;
+                    StructMap.put(xx.ID, yy);
+                    System.out.println("create : " + xx.ID);            
+
+                }
+            }
+            if(!x.equals(y)){
+
+                SeqID xy = new SeqID(); xy.setItemid(x, y);
+                SeqID xny = new SeqID(); xny.setItemidn(x, y);
+                
+                //sequecne
+                SequenceStruct x1y = new SequenceStruct(); 
+                x1y.SeqId = xy;
+                HashSet<Integer> samecid = SameCidFunc(StructMap.get(x).CIDList, StructMap.get(y).CIDList);
+                //System.out.println("samecid : " + samecid);
+                if(samecid.size()>0){
+                    //對每個相同ＣＩＤ
+                    for(Integer cid : samecid){
+                        TreeSet<Integer> adddayset = new TreeSet<>();
+                        for(Integer yday : StructMap.get(y).CIDDay.get(cid)){
+                            if(yday > StructMap.get(x).CIDDay.get(cid).first()){//大於Ｘ的第一天
+                                adddayset.add(yday);
+                            }
+                        }
+                        if(adddayset.size()>0){
+                            x1y.CIDList.add(cid);
+                            x1y.CIDDay.put(cid, adddayset);
+                        }  
+                    }
+                    x1y.Seqlengh++;
+                    StructMap.put(xy.ID, x1y);
+                    System.out.println("create: " + xy.ID);
+                }
+
+                //togeter
+                String[] intx = x.split("#");
+                String[] inty = y.split("#");
+                int xxxx = Integer.parseInt(intx[0]);
+                int yyyy = Integer.parseInt(inty[0]);
+
+                if(xxxx < yyyy){
+                    SequenceStruct x2y = new SequenceStruct(); 
+                    x2y.SeqId = xny;
+                    //System.out.println("ID : "+xny.ID);
+                    HashSet<Integer> samecid1 = SameCidFunc(StructMap.get(x).CIDList, StructMap.get(y).CIDList);
+                    //System.out.println("sameID : " + samecid);
+                    if(samecid.size()>0){
+                        //對每個相同ＣＩＤ
+                        for(Integer cid : samecid1){
+                            //System.out.println("cid : "+cid);
+                            TreeSet<Integer> adddayset = new TreeSet<>();
+
+                            for(Integer yd : StructMap.get(y).CIDDay.get(cid)){
+                                for(Integer xd : StructMap.get(x).CIDDay.get(cid)){
+                                    //System.out.println("CID : " + cid + " yd : " + yd + " xd : " + xd);
+                                    if(yd.equals(xd)){
+                                        adddayset.add(yd);
+                                    }
+                                }
+                                //System.out.println("addset : "+adddayset) ;
+                                //System.out.println("OK");
+                                if(adddayset.size()>0){
+                                    x2y.CIDList.add(cid);
+                                    x2y.CIDDay.put(cid, adddayset);
+                                }
+                            }
+                        }
+                        x2y.Seqlengh++;
+                        StructMap.put(xny.ID, x2y);
+                        System.out.println("creratr: " + xny.ID);
+
+                    } 
+                }
+            }
+        }else{
+            String prefixseq = funcfirst(x);
+            String postfixseq = funclast(x);
+            String prefixcom = funcfirst(y);
+            String postfixcom = funclast(y);
+            
+            //"bc" cb
+            if(prefixseq.equals(postfixcom)){
+                String[] check = y.split("#"); 
+                if(check[check.length-1].contains("&")){//不是獨立
+                    String candidate = candiIdTogeter(x, y);
+
+                    SequenceStruct temp = new SequenceStruct();
+                    SeqID tid = new SeqID();
+                    tid.ID = candidate;
+                    temp.SeqId = tid;
+                    temp.Seqlengh = lv+1;
+                  
+                    HashSet<Integer> set = SameCidFunc(StructMap.get(x).CIDList, StructMap.get(y).CIDList);
+                    
+                    //System.out.println("set1: "+set);
+                    if(set.size()>0){
+                        for(Integer cid : set){
+
+                            TreeSet<Integer> adddayset = new TreeSet<>();
+
+                            //System.out.println(StructMap.get(seq).CIDDay.get(cid));
+                            //System.out.println(StructMap.get(compseq).CIDDay.get(cid));
+                            
+
+                            for(Integer xd : StructMap.get(x).CIDDay.get(cid)){
+                                for(Integer yd : StructMap.get(y).CIDDay.get(cid)){
+                                    if(xd != null && yd != null){
+                                        if(yd.equals(xd)){
+                                            adddayset.add(yd);
+                                        }
+                                    }
+                                }
+                                if(adddayset.size()>0){
+                                    temp.CIDList.add(cid);
+                                    temp.CIDDay.put(cid, adddayset);
+                                    //System.out.println("cid: "+cid+" adddaylist: "+adddayset);
+                                }
+                            }
+                        }
+                        StructMap.put(candidate, temp);
+                        System.out.println("create: " + candidate);
+                    }
+                }else{//獨立
+                    String candidate = candiIdStream(x, y);
+                    SequenceStruct temp = new SequenceStruct();
+                    //System.out.println("checkcandidate:"+candidate);
+                    SeqID tid = new SeqID();
+                    tid.ID = candidate;
+                    temp.SeqId = tid;
+                    temp.Seqlengh = lv+1;
+                    //System.out.println("lv"+ temp.Seqlengh);
+                    
+                    HashSet<Integer> set = SameCidFunc(StructMap.get(x).CIDList, StructMap.get(y).CIDList);
+                    //System.out.println("set:"+ set);
+                    if(set.size()>0){
+                        for(Integer cid : set){
+                            //System.out.println("cid = "+cid);
+                            TreeSet<Integer> adddayset = new TreeSet<>();
+                            for(Integer yd : StructMap.get(y).CIDDay.get(cid)){
+                                //System.out.println("yd : "+yd);
+                                //System.out.println("first: "+StructMap.get(seq).CIDDay.get(cid).first());
+                                if(StructMap.get(x).CIDDay.containsKey(cid)){
+                                    if(yd > StructMap.get(x).CIDDay.get(cid).first()){
+                                        adddayset.add(yd);
+                                    }
+                                }
+                            }
+                            
+                            if(adddayset.size()>0){
+                                temp.CIDList.add(cid);
+                                temp.CIDDay.put(cid, adddayset);
+                                //System.out.println("cid: "+cid+" add : "+adddayset);
+                            }
+                            
+                        }
+                        //System.out.println("check");
+                        StructMap.put(candidate, temp);
+                        System.out.println("creat: "+ candidate);
+
+                    }
+                }
+            }
+            //cb "bc"
+            if(prefixcom.equals(postfixseq)){
+                String[] check = x.split("#");
+                if(check[check.length-1].contains("&")){//不是獨立
+                    String candidate = candiIdTogeter(y, x);
+                    SequenceStruct temp = new SequenceStruct();
+                    SeqID tid = new SeqID();
+                    tid.ID = candidate;
+                    temp.SeqId = tid;
+                    temp.Seqlengh = lv+1;
+                    HashSet<Integer> set = SameCidFunc(StructMap.get(x).CIDList, StructMap.get(y).CIDList);
+                    //System.out.println(seq +" : "+StructMap.get(seq).CIDDay);
+                    //System.out.println(compseq +" : "+StructMap.get(compseq).CIDDay);
+                    //System.out.println("set: "+set);
+                    if(set.size()>0){
+                        for(Integer cid : set){
+                            TreeSet<Integer> adddayset = new TreeSet<>();
+                            for(Integer xd : StructMap.get(y).CIDDay.get(cid)){
+                                for(Integer yd : StructMap.get(x).CIDDay.get(cid)){
+                                    if(yd.equals(xd)){
+                                        adddayset.add(yd);
+                                    }
+                                }
+                                if(adddayset.size()>0){
+                                    temp.CIDList.add(cid);
+                                    temp.CIDDay.put(cid, adddayset);
+                                }
+                            }
+                        }
+                        StructMap.put(candidate, temp);
+                        System.out.println("create: " + candidate);
+                    }
+
+                }else{//獨立
+                    String candidate = candiIdStream(y, x);
+                    SequenceStruct temp = new SequenceStruct();
+                    SeqID tid = new SeqID();
+                    tid.ID = candidate;
+                    temp.SeqId = tid;
+                    temp.Seqlengh = lv+1;
+                    /*System.out.println("tid.id: "+temp.SeqId.ID);
+                    System.out.println("seqlist"+StructMap.get(seq).CIDDay);
+                    System.out.println("comlist"+StructMap.get(compseq).CIDDay);*/
+                    HashSet<Integer> set = SameCidFunc(StructMap.get(x).CIDList, StructMap.get(y).CIDList);
+                    
+                    //System.out.println("set: "+set);
+                    
+                    if(set.size()>0){
+                        for(Integer cid : set){
+                            TreeSet<Integer> adddayset = new TreeSet<>();
+                            for(Integer yd : StructMap.get(x).CIDDay.get(cid)){
+                                //System.out.println("yd: "+yd);
+                                if(yd > StructMap.get(y).CIDDay.get(cid).first()){
+                                    adddayset.add(yd);
+                                }
+                            }
+                            if(adddayset.size()>0){
+                                temp.CIDList.add(cid);
+                                temp.CIDDay.put(cid, adddayset);
+                                //System.out.println("cid: "+cid+"add: "+adddayset);
+                            }
+                            
+                        }
+                        StructMap.put(candidate, temp);
+                        //System.out.println("candida: "+candidate+" temp: "+temp.CIDDay);
+                        System.out.println("creatr: " + candidate);
+                    }
+                }
+            }
+        }
+    }
+
 
 
     private static TreeSet<Integer> func_onlydel(int lastdelday, TreeSet<Integer> comptset, TreeSet<Integer> canditset){
@@ -1190,11 +1463,10 @@ public class main_SPStream_deletion_v1{
                 sequencepattern.add(k);
             }
         }
-        System.out.println("sequencepattern: " + sequencepattern);
-
+        
         // start del
         while(nowdelday == 1){
-
+            
             ArrayList<String> beforefseq = sequencepattern;
             System.out.println("beforefseq: " + beforefseq);
             
@@ -1238,30 +1510,29 @@ public class main_SPStream_deletion_v1{
                 }
             }
             afterMinSupCount = (int) Math.ceil(Cidset.size() * minsup);
-            System.out.println("afterMinSupCount: " + afterMinSupCount);
-            
-            
             
             int lv = 1;
             
-            
-            
             //直到組合不出來
-            while(/*beforefseq.size() < 2*/ lv < 2){
+            while(/*beforefseq.size() < 2*/ lv < 3){
                 //put k+1.freqent
+                System.out.println("-------------------------------");
                 System.out.println("loop: " + lv);
                 ArrayList<String> frequentsequencelist = new ArrayList<>();
-
+                System.out.println("check seqpatter: " + sequencepattern);
                 //find each case 
                 ArrayList<String> f2inflist = new ArrayList<>(); 
                 
                 //f-> inf ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                 for(String seq : sequencepattern){
                     SequenceStruct temp = StructMap.get(seq);
-                    if(temp.Seqlengh == lv && temp.CIDList.size() < afterMinSupCount ){
-                        System.out.println("f -> inf : " + seq);
-                        f2inflist.add(seq);
-                    }    
+                    if(temp != null){
+                        if(temp.Seqlengh == lv && temp.CIDList.size() < afterMinSupCount ){
+                            System.out.println("f -> inf : " + seq);
+                            f2inflist.add(seq);
+                        }    
+
+                    }
                 }
                 //del f -> inf candidate
                 for(String k: findcandidatefunc(f2inflist)){
@@ -1273,16 +1544,19 @@ public class main_SPStream_deletion_v1{
                 
                 for(String seq : sequencepattern){
                     SequenceStruct temp = StructMap.get(seq);
-                    if(temp.Seqlengh == lv && temp.CIDList.size() >= afterMinSupCount){
-                        System.out.println("f -> f : " + seq);
-                        f2flist.add(seq);
-                        frequentsequencelist.add(seq);
+                    if(temp != null){
+                        if(temp.Seqlengh == lv && temp.CIDList.size() >= afterMinSupCount){
+                            System.out.println("f -> f : " + seq);
+                            f2flist.add(seq);
+                            frequentsequencelist.add(seq);
+                        }
+
                     }
                 }
 
                 //mark daylist 
                 TreeMap<String, TreeMap<Integer, TreeSet<Integer>>> delcandidatelistInfoMap = deldaylistfunc(f2flist, delItemdaylistInfoMap);
-                System.out.println("return : " + delcandidatelistInfoMap);
+                //System.out.println("return : " + delcandidatelistInfoMap);
 
                 //del daylist
                 delmarkdaylist(delcandidatelistInfoMap);
@@ -1300,9 +1574,8 @@ public class main_SPStream_deletion_v1{
                         delnulldaylist(str);
                     }
                 }
-                
- 
-                //inf-> f+++++++++++++++++++++++++++++++++ 
+
+                //inf-> f++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                 ArrayList<String> inf2flist = new ArrayList<>();
                 
                 for(String seq : StructMap.keySet()){
@@ -1313,11 +1586,10 @@ public class main_SPStream_deletion_v1{
                         frequentsequencelist.add(seq);
                     }
                 }
-                
+
+                System.out.println("frequentsequencelist: " + frequentsequencelist);
                 //create to each other 
-                createfreqfunc(inf2flist);
-
-
+                createfreqfunc(inf2flist, lv);
 
                 delItemdaylistInfoMap = delcandidatelistInfoMap;
 
@@ -1325,30 +1597,28 @@ public class main_SPStream_deletion_v1{
                 
                 lv++;
             }
-
-
             //next day
             Cidset.clear();
             nowdelday++;
         }
 
-/*
-        for(String str : StructMap.keySet()){
-            if(StructMap.get(str).Seqlengh == 2){
-                System.out.println("ID: " + str);
-                System.out.println("sup: " + StructMap.get(str).CIDList.size());
-                System.out.println("CidList: " + StructMap.get(str).CIDList);
-                System.out.println("CiDDay: " + StructMap.get(str).CIDDay);
-                System.out.println(">>>>>>>");
-            }
-        }
-        */
+
         System.out.println(StructMap.keySet());
         System.out.println("del done");
         
 
 
+                for(String str : StructMap.keySet()){
+                    if(StructMap.get(str).Seqlengh == 3 ){
+                        System.out.println("ID: " + str);
+                        System.out.println("sup: " + StructMap.get(str).CIDList.size());
+                        System.out.println("CidList: " + StructMap.get(str).CIDList);
+                        System.out.println("CiDDay: " + StructMap.get(str).CIDDay);
+                        System.out.println(">>>>>>>");
+                    }
+                }
+                
     }
     
 }
-    
+                    
