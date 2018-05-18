@@ -194,7 +194,7 @@ public class main_SPStream_deletion_v1{
         //System.out.println(freqlist);
         for(String inf2fseq : inf2fList){
             for(String fseq : freqlist){
-                System.out.println("x: " + inf2fList+ " y: "+ fseq);
+                //System.out.println("x: " + inf2fList+ " y: "+ fseq);
                 comparefnc(inf2fseq, fseq, lv);
                 comparefnc(fseq, inf2fseq, lv);
             }
@@ -223,7 +223,7 @@ public class main_SPStream_deletion_v1{
                     }
                     yy.Seqlengh++;
                     StructMap.put(xx.ID, yy);
-                    System.out.println("create : " + xx.ID);            
+                    //System.out.println("create : " + xx.ID);            
 
                 }
             }
@@ -253,7 +253,7 @@ public class main_SPStream_deletion_v1{
                     }
                     x1y.Seqlengh++;
                     StructMap.put(xy.ID, x1y);
-                    System.out.println("create: " + xy.ID);
+                    //System.out.println("create: " + xy.ID);
                 }
 
                 //togeter
@@ -291,7 +291,7 @@ public class main_SPStream_deletion_v1{
                         }
                         x2y.Seqlengh++;
                         StructMap.put(xny.ID, x2y);
-                        System.out.println("creratr: " + xny.ID);
+                        //System.out.println("creratr: " + xny.ID);
 
                     } 
                 }
@@ -342,7 +342,7 @@ public class main_SPStream_deletion_v1{
                             }
                         }
                         StructMap.put(candidate, temp);
-                        System.out.println("create: " + candidate);
+                        //System.out.println("create: " + candidate);
                     }
                 }else{//獨立
                     String candidate = candiIdStream(x, y);
@@ -379,7 +379,7 @@ public class main_SPStream_deletion_v1{
                         }
                         //System.out.println("check");
                         StructMap.put(candidate, temp);
-                        System.out.println("creat: "+ candidate);
+                       //System.out.println("creat: "+ candidate);
 
                     }
                 }
@@ -414,7 +414,7 @@ public class main_SPStream_deletion_v1{
                             }
                         }
                         StructMap.put(candidate, temp);
-                        System.out.println("create: " + candidate);
+                        //System.out.println("create: " + candidate);
                     }
 
                 }else{//獨立
@@ -449,7 +449,7 @@ public class main_SPStream_deletion_v1{
                         }
                         StructMap.put(candidate, temp);
                         //System.out.println("candida: "+candidate+" temp: "+temp.CIDDay);
-                        System.out.println("creatr: " + candidate);
+                        //System.out.println("creatr: " + candidate);
                     }
                 }
             }
@@ -1458,16 +1458,19 @@ public class main_SPStream_deletion_v1{
 */      
         // put frequent pattern 
         ArrayList<String> sequencepattern = new ArrayList<>();
-        for(String k : StructMap.keySet()){
-            if(StructMap.get(k).CIDList.size() >= (int) Math.ceil(CIDList.size()* minsup) ){
-                sequencepattern.add(k);
-            }
-        }
         
         // start del
         while(nowdelday == 1){
             
-            ArrayList<String> beforefseq = sequencepattern;
+            ArrayList<String> beforefseq = new ArrayList<>();
+            //put sequence pattern
+            for(String k : StructMap.keySet()){
+                if(StructMap.get(k).CIDList.size() >= (int) Math.ceil(CIDList.size()* minsup) ){
+                    beforefseq.add(k);
+                }
+            }
+            
+            
             System.out.println("beforefseq: " + beforefseq);
             
             TreeMap<String, TreeMap<Integer, TreeSet<Integer>>> delItemdaylistInfoMap = new TreeMap<>();
@@ -1511,14 +1514,14 @@ public class main_SPStream_deletion_v1{
             }
             afterMinSupCount = (int) Math.ceil(Cidset.size() * minsup);
             
+            ArrayList<String> frequentsequencelist = new ArrayList<>();
             int lv = 1;
             
             //直到組合不出來
-            while(/*beforefseq.size() < 2*/ lv < 3){
+            while(/*frequentsequencelist.size() > 1 */lv < 5){
                 //put k+1.freqent
                 System.out.println("-------------------------------");
                 System.out.println("loop: " + lv);
-                ArrayList<String> frequentsequencelist = new ArrayList<>();
                 System.out.println("check seqpatter: " + sequencepattern);
                 //find each case 
                 ArrayList<String> f2inflist = new ArrayList<>(); 
@@ -1592,11 +1595,11 @@ public class main_SPStream_deletion_v1{
                 createfreqfunc(inf2flist, lv);
 
                 delItemdaylistInfoMap = delcandidatelistInfoMap;
-
-                //sequencepattern = frequentsequencelist;
                 
+                //sequencepattern = frequentsequencelist;
                 lv++;
             }
+            System.out.println("sequencepattern: " +sequencepattern );
             //next day
             Cidset.clear();
             nowdelday++;
@@ -1607,7 +1610,7 @@ public class main_SPStream_deletion_v1{
         System.out.println("del done");
         
 
-
+/*
                 for(String str : StructMap.keySet()){
                     if(StructMap.get(str).Seqlengh == 3 ){
                         System.out.println("ID: " + str);
@@ -1617,7 +1620,7 @@ public class main_SPStream_deletion_v1{
                         System.out.println(">>>>>>>");
                     }
                 }
-                
+   */             
     }
     
 }
