@@ -808,7 +808,6 @@ public class main_SPStream_deletion_v1{
 
         /*String curr = "20#40#";
         if(freqset.contains(curr)){
-
             System.out.println(StructMap.get(curr).SeqId.ID);
             System.out.println(StructMap.get(curr).CIDList);
             System.out.println(StructMap.get(curr).CIDDay);
@@ -1460,8 +1459,9 @@ public class main_SPStream_deletion_v1{
         ArrayList<String> sequencepattern = new ArrayList<>();
         
         // start del
-        while(nowdelday == 1){
-            
+        while(nowdelday <2){
+            System.out.println("////////////////////////////////////////////////////");
+            System.out.println("now del day is " + nowdelday);
             ArrayList<String> beforefseq = new ArrayList<>();
             //put sequence pattern
             for(String k : StructMap.keySet()){
@@ -1513,21 +1513,21 @@ public class main_SPStream_deletion_v1{
                 }
             }
             afterMinSupCount = (int) Math.ceil(Cidset.size() * minsup);
+            System.out.println("afterMinSupCount: " + afterMinSupCount);
             
             ArrayList<String> frequentsequencelist = new ArrayList<>();
             int lv = 1;
             
             //直到組合不出來
-            while(/*frequentsequencelist.size() > 1 */lv < 5){
+            while(/*frequentsequencelist.size() > 1 */lv < ˊ){
                 //put k+1.freqent
                 System.out.println("-------------------------------");
                 System.out.println("loop: " + lv);
-                System.out.println("check seqpatter: " + sequencepattern);
                 //find each case 
                 ArrayList<String> f2inflist = new ArrayList<>(); 
                 
                 //f-> inf ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-                for(String seq : sequencepattern){
+                for(String seq : beforefseq){
                     SequenceStruct temp = StructMap.get(seq);
                     if(temp != null){
                         if(temp.Seqlengh == lv && temp.CIDList.size() < afterMinSupCount ){
@@ -1545,7 +1545,7 @@ public class main_SPStream_deletion_v1{
                 //f-> f++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                 ArrayList<String> f2flist = new ArrayList<>();
                 
-                for(String seq : sequencepattern){
+                for(String seq : beforefseq){
                     SequenceStruct temp = StructMap.get(seq);
                     if(temp != null){
                         if(temp.Seqlengh == lv && temp.CIDList.size() >= afterMinSupCount){
@@ -1596,9 +1596,9 @@ public class main_SPStream_deletion_v1{
 
                 delItemdaylistInfoMap = delcandidatelistInfoMap;
                 
-                //sequencepattern = frequentsequencelist;
                 lv++;
             }
+            sequencepattern = frequentsequencelist;
             System.out.println("sequencepattern: " +sequencepattern );
             //next day
             Cidset.clear();
@@ -1624,4 +1624,3 @@ public class main_SPStream_deletion_v1{
     }
     
 }
-                    
