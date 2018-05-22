@@ -117,21 +117,23 @@ public class main_SPStream_deletion_v1{
                 System.out.println("origdayset: " + origdayset);
                 String[] check = candidate.split("#");
                 if(check[check.length-1].contains("&")){//不是獨立項目及
-                    TreeSet<Integer> tset = func_togerdel(tMap.get(cid), origdayset);
+                    TreeSet<Integer> tset = func_togerdel(tMap.get(cid), candidayset); //(tMap.get(cid), origdayset)
                     if(tset != null){
                         delInfo.put(cid, tset);
+                        System.out.println("func_togerdel :" + cid + " "  + tset );
                     }
                 }else{//candistruct is 獨立項目及
                     TreeSet<Integer> tset = func_onlydel(tMap.get(cid).last(), candidayset, origdayset);
                     if(tset != null){
                         delInfo.put(cid, tset);
+                        System.out.println("func_onlydel :" + cid + " "  + tset );
                     }
                 }
             }else{
                 //do nothing
             }
         }
-        
+        System.out.println("seq: "+ seq+ " candidate : " + candidate + " delInfo: " + delInfo);
         return delInfo;
     }
 
