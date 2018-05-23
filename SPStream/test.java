@@ -348,60 +348,47 @@ public class test {
         System.out.println("retrun canset: "+canset);
         return canset;//return canset
     }
+
+    private static String funcgenerationcheck(String seq){
+        String str = seq.substring(0, seq.length()-1);
+        int idx1 = str.lastIndexOf("#");
+        int idx2 = str.lastIndexOf("&");
+        int idx = (idx1 > idx2) ? idx1 : idx2;
+        return str.substring(idx, idx+1);
+    }
+    private static String funclastitem(String seq){
+        String str = seq.substring(0, seq.length()-1);
+        int idx1 = str.lastIndexOf("#");
+        int idx2 = str.lastIndexOf("&");
+        int idx = (idx1 > idx2) ? idx1 : idx2;
+        return str.substring(idx+1);
+    }
+
+
     public static void main(String[] args) {
-        ArrayList<String> alist = new ArrayList<>();
-        String str = "20#30&40#";
-        /*String[] data = str.split("#");
-        for(String str2 : data){
-            String[] data1 = str2.split("&");
-            if(data1.length >1){
-                int i=0;
-                for( i = 0; i < data1.length-1; i++){
-                    alist.add(data1[i]+"&");
-                }
-                alist.add(data1[i]+"#");
-            }else{
-                alist.add(str2+"#");
-            }
+        String seq = "30&50#";
+        String compseq = "30#40#";
+        
+        String candidata1 = seq + funclastitem(compseq) + "#";
+        String candidata2 = compseq +funclastitem(seq) + "#";
+        String candidata3 = funclast( seq ) + "#" + funclastitem(( Integer.parseInt(funclastitem(seq)) < Integer.parseInt(funclastitem(compseq))  ) ? seq : compseq ) + "&" + funclastitem(( Integer.parseInt(funclastitem(seq)) > Integer.parseInt(funclastitem(compseq))  ) ? seq : compseq )+"#";
+        String candidate4 = funclast( seq ) + "&" + funclastitem(( Integer.parseInt(funclastitem(seq)) < Integer.parseInt(funclastitem(compseq))  ) ? seq : compseq ) + "&" + funclastitem(( Integer.parseInt(funclastitem(seq)) > Integer.parseInt(funclastitem(compseq))  ) ? seq : compseq )+"#";
+        System.out.println(candidata1);
+        System.out.println(candidata2);
+        System.out.println(candidata3);
+        System.out.println(candidate4);
+        System.out.println( seq + funclastitem(seq) + "#");
+        String[] checkc = compseq.split("#");
+        String[] checks = seq.split("#");
+        String candidate = "";
+        if(checkc[checkc.length-1].contains("&")){
+            candidate = compseq + funclastitem(seq) + "#" ;
+        }else if(checks[checks.length-1].contains("&")){
+            candidate = seq + funclastitem(compseq) + "#" ;
         }
-       System.out.println("alist: "+alist);*/
-       
-       /*System.out.println(str);
+        System.out.println(candidate);
 
-       String temp = str.substring(0, str.length()-1);
-       int idx1 = temp.lastIndexOf("#");
-       int idx2 = temp.lastIndexOf("&");
-       int idx = (idx1 > idx2) ? idx1 : idx2;
-       String x = temp.substring(0, idx)+"#";
-       System.out.println(x);
 
-        String[] data = str.split("[&#]");
-        int idy1 = str.indexOf("#");
-        int idy2 = str.indexOf("&");
-        if(idy2 != -1){
-            int idy = (idy1 < idy2) ? idy1 : idy2;
-            String y = str.substring(idy + 1, str.length()-1)+"#";
-            System.out.println(y) ;
-        }else{
-            int idy = izsdy1;
-            String y = str.substring(idy + 1, str.length()-1)+"#";
-            System.out.println(y) ;
-        }*/
-
-        TreeSet<Integer> tset = new TreeSet<>();
-        tset.add(0);
-        tset.add(1);
-        tset.add(3);
-
-        System.out.println("tset: "+ tset);
-        System.out.println("last: "+tset.remove(3));
-        System.out.println(tset);
-       TreeMap<Integer, String> tmap = new TreeMap<>();
-       tmap.put(0, "W");
-       tmap.put(2, null);
-       System.out.println(tmap);
-       tmap.remove(2);
-       System.out.println(tmap);
     }
 
     

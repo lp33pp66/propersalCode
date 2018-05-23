@@ -19,7 +19,7 @@ import spstream.MemoryLogger;
 
 
 
-public class main_SPStream_insert{
+public class main_SPStream_insert_AprioriAll{
     public static int nowday = 1;
     public static double minsup = 0.019;
     public static HashSet<Integer> CIDList = new HashSet<>();
@@ -340,50 +340,148 @@ public class main_SPStream_insert{
                 lvset.add(k);
             }
         }
-
-        /*String curr = "20#40#";
-        if(freqset.contains(curr)){
-
-            System.out.println(StructMap.get(curr).SeqId.ID);
-            System.out.println(StructMap.get(curr).CIDList);
-            System.out.println(StructMap.get(curr).CIDDay);
-            System.out.println(StructMap.get(curr).Seqlengh);
-        }
-    
-            System.out.println("lvset: "+lvset);
-            System.out.println("freqset seq: "+freqset);*/
-
-
+        
         for(String seq : freqset){
             String prefixseq = funcfirst(seq);
             String postfixseq = funclast(seq);
             for(String compseq : lvset){
                 String prefixcom = funcfirst(compseq);
                 String postfixcom = funclast(compseq );
-                /******************************************************************** */
-                //System.out.println("????????????????????????????????????????????????????????????");
-                /*System.out.println("seq: "+seq+" compseq: "+compseq);
-                System.out.println("prefixseq: "+prefixseq);
-                System.out.println("postfixseq: "+postfixseq);
-                System.out.println("prefixcom: "+prefixcom);
-                System.out.println("postfixcom: "+postfixcom);*/
-                //if(seq.contains("20#40#")) System.out.println("seqhave prob");
-                //if(compseq.contains("20#40#")) System.out.println("comseq/ prob");
-                //System.out.println("compseq:"+ compseq + " postfixcom: " + postfixcom);
+                
+                //System.out.println("compseq:"+ compseq + " postfixcom: " + postfixcom  );
                 //System.out.println("seq"+ seq + " postfixseq: " + postfixseq);
-                if(prefixseq.equals(postfixcom)){//"bc" cb
-                    //System.out.println("eql: "+prefixseq+" "+postfixcom);
+                //System.out.println();
+                if(postfixcom.equals(postfixseq)){
                     
-                    //2case
-                    String[] check = compseq.split("#");
+                    //3case
+                    if((funcgenerationcheck(seq).equals("#")) && (funcgenerationcheck(compseq).equals("#") ) ){//<AB> <AC> <ABC> <ACB> <A(BC)>
+                        
+                        String candidate1 = seq + funclastitem(compseq) + "#";
+                        String candidate2 = compseq +funclastitem(seq) + "#";
+                        String candidate3 = funclast( seq ) + "#" + funclastitem(( Integer.parseInt(funclastitem(seq)) < Integer.parseInt(funclastitem(compseq))  ) ? seq : compseq ) + "&" + funclastitem(( Integer.parseInt(funclastitem(seq)) > Integer.parseInt(funclastitem(compseq))  ) ? seq : compseq )+"#";
+                        
+                        if(StructMap.containsKey(candidate1)){
+                            SequenceStruct temp = StructMap.get(candidate1);
+                            HashSet<Integer> set = funchasnewday(compseq ,nowday);
+                            //System.out.println("candida: "+candidate+" temp: "+temp.CIDDay);
+                            if(set.size() > 0){ 
+                                for(Integer cid : set){
+                                    if(temp.CIDList.contains(cid)){
+                                        //System.out.println("cid: "+cid+" value "+temp.CIDDay.get(cid));
+                                        temp.CIDDay.get(cid).add(nowday);
+                                        //System.out.println("cid: "+cid+" day: "+nowday);
+                                    }else{
+                                        if(StructMap.get(seq).CIDList.contains(cid)){
+                                            TreeSet<Integer> sset = new TreeSet<>();
+                                            for(Integer cday : StructMap.get(compseq).CIDDay.get(cid)){
+                                                if(StructMap.get(seq).CIDDay.containsKey(cid)){
+                                                    if(cday > StructMap.get(seq).CIDDay.get(cid).first()){
+                                                        sset.add(cday);
+                                                        //System.out.println("cid: "+cid+" cday: "+cday);
+                                                    }
+                                                }
+                                            }
+                                            if(sset.size()>0){
+                                                temp.CIDDay.put(cid, sset);
+                                                temp.CIDList.add(cid);
+                                            }
+                                        }
+                                    }
+                                }
+                                StructMap.put(candidate1, temp);
+                                //System.out.println("candida: "+candidate+" temp: "+temp.CIDDay);
+                                canset.add(candidate1);
+                            }
+                        }else{
+                            SequenceStruct temp = new SequenceStruct();
+                            SeqID tid = new SeqID();
+                            tid.ID = candidate1;
+                            temp.SeqId = tid;
+                            temp.Seqlengh = lv+1;                            
+                            HashSet<Integer> set = SameCidFunc(StructMap.get(seq).CIDList, StructMap.get(compseq).CIDList);
+                            //System.out.println("set:"+ set);
+                            if(set.size()>0){
+                                for(Integer cid : set){
+                                    TreeSet<Integer> adddayset = new TreeSet<>();
+                                    for(Integer yd : StructMap.get(compseq).CIDDay.get(cid)){
+                                        if(StructMap.get(seq).CIDDay.containsKey(cid)){
+                                            if(yd > StructMap.get(seq).CIDDay.get(cid).first()){
+                                                adddayset.add(yd);
+                                            }
+                                        }
+                                    }
+                                    if(adddayset.size()>0){
+                                        temp.CIDList.add(cid);
+                                        temp.CIDDay.put(cid, adddayset);
+                                    }
+                                }
+                                StructMap.put(candidate1, temp);
+                                canset.add(candidate1);
+                            }  
+                        }
 
-                    if(check[check.length-1].contains("&")){//x2.last不是獨立項目及
-                        
-                        String candidate = candiIdTogeter(seq, compseq);
-                        //System.out.println("x2.last不是獨立項目及 : "+candidate);
-                        
-                        if(StructMap.containsKey(candidate)){
-                            SequenceStruct temp = StructMap.get(candidate);
+                        if(StructMap.containsKey(candidate2)){
+                            SequenceStruct temp = StructMap.get(candidate2);
+                            //System.out.println("candidate: "+candidate);
+                            HashSet<Integer> set = funchasnewday(seq, nowday);
+                            /*System.out.println("funchaseneq.id : " +seq);
+                            System.out.println("this?set: "+set);*/
+                            //System.out.println("set: "+set);
+                            if(set.size() > 0){ 
+                                for(Integer cid : set){
+                                    if(temp.CIDList.contains(cid)){
+                                        temp.CIDDay.get(cid).add(nowday);
+                                    }else{
+                                        if(StructMap.get(compseq).CIDList.contains(cid)){
+                                            TreeSet<Integer> sset = new TreeSet<>();
+                                            for(Integer cday : StructMap.get(seq).CIDDay.get(cid)){
+                                                if(StructMap.get(compseq).CIDDay.containsKey(cid)){
+                                                    if(cday > StructMap.get(compseq).CIDDay.get(cid).first()){
+                                                        sset.add(cday);
+                                                    }
+                                                }
+                                            }
+                                            if(sset.size()>0){
+                                                temp.CIDDay.put(cid, sset);
+                                                temp.CIDList.add(cid);
+                                            }
+                                        }
+                                    }
+                                }
+                                StructMap.put(candidate2, temp);
+                                canset.add(candidate2);
+                            }
+                        }else{
+                            
+                            SequenceStruct temp = new SequenceStruct();
+                            SeqID tid = new SeqID();
+                            tid.ID = candidate2;
+                            temp.SeqId = tid;
+                            temp.Seqlengh = lv+1;
+    
+                            HashSet<Integer> set = SameCidFunc(StructMap.get(seq).CIDList, StructMap.get(compseq).CIDList);
+                            
+                            if(set.size()>0){
+                                for(Integer cid : set){
+                                    TreeSet<Integer> adddayset = new TreeSet<>();
+                                    for(Integer yd : StructMap.get(seq).CIDDay.get(cid)){
+                                        //System.out.println("yd: "+yd);
+                                        if(yd > StructMap.get(compseq).CIDDay.get(cid).first()){
+                                            adddayset.add(yd);
+                                        }
+                                    }
+                                    if(adddayset.size()>0){
+                                        temp.CIDList.add(cid);
+                                        temp.CIDDay.put(cid, adddayset);
+                                    }
+                                }
+                                StructMap.put(candidate2, temp);
+                                canset.add(candidate2);
+                            }
+                        }
+
+                        if(StructMap.containsKey(candidate3)){
+                            SequenceStruct temp = StructMap.get(candidate3);
                             HashSet<Integer> set = funchasnewday(seq, compseq, nowday);
                             //System.out.println("set:"+set);
                             for(Integer cid : set){
@@ -408,34 +506,22 @@ public class main_SPStream_insert{
                                         temp.CIDList.add(cid);
                                     }
                                 }
-                                
                             }           
-                            StructMap.put(candidate, temp);
-                            canset.add(candidate);
+                            StructMap.put(candidate3, temp);
+                            canset.add(candidate3);
                         }else{
                             SequenceStruct temp = new SequenceStruct();
                             SeqID tid = new SeqID();
-                            tid.ID = candidate;
+                            tid.ID = candidate3;
                             temp.SeqId = tid;
                             temp.Seqlengh = lv+1;
 
-                            //System.out.println("candidate: "+candidate);
-                            //System.out.println("seq: "+seq+" day: "+StructMap.get(seq).CIDDay);
-                            //System.out.println("compseq: "+compseq+" day: "+StructMap.get(compseq).CIDDay);
-                            //System.out.println(StructMap.get(seq).CIDList);
-                            //System.out.println(StructMap.get(compseq).CIDList);
-                            
                             HashSet<Integer> set = SameCidFunc(StructMap.get(seq).CIDList, StructMap.get(compseq).CIDList);
                             
-                            //System.out.println("set1: "+set);
                             if(set.size()>0){
                                 for(Integer cid : set){
 
                                     TreeSet<Integer> adddayset = new TreeSet<>();
-
-                                    //System.out.println(StructMap.get(seq).CIDDay.get(cid));
-                                    //System.out.println(StructMap.get(compseq).CIDDay.get(cid));
-                                    
 
                                     for(Integer xd : StructMap.get(seq).CIDDay.get(cid)){
                                         for(Integer yd : StructMap.get(compseq).CIDDay.get(cid)){
@@ -448,7 +534,71 @@ public class main_SPStream_insert{
                                         if(adddayset.size()>0){
                                             temp.CIDList.add(cid);
                                             temp.CIDDay.put(cid, adddayset);
-                                            //System.out.println("cid: "+cid+" adddaylist: "+adddayset);
+                                        }
+                                    }
+                                }
+                                StructMap.put(candidate3, temp);
+                                canset.add(candidate3);
+                            }
+                        }
+                    
+                    }else if((funcgenerationcheck(seq) == "&") && (funcgenerationcheck(compseq) == "&")){//<()> <()> <()>
+                        String candidate = funclast( seq ) + "&" + funclastitem(( Integer.parseInt(funclastitem(seq)) < Integer.parseInt(funclastitem(compseq))  ) ? seq : compseq ) + "&" + funclastitem(( Integer.parseInt(funclastitem(seq)) > Integer.parseInt(funclastitem(compseq))  ) ? seq : compseq )+"#";
+
+                        if(StructMap.containsKey(candidate)){
+                            SequenceStruct temp = StructMap.get(candidate);
+                            HashSet<Integer> set = funchasnewday(seq, compseq, nowday);
+                            
+                            for(Integer cid : set){
+                                if(temp.CIDDay.keySet().contains(cid)){
+                                    temp.CIDList.add(cid);
+                                    TreeSet<Integer> tset = new TreeSet<>();
+                                    tset = temp.CIDDay.get(cid);
+                                    tset.add(nowday);
+                                    temp.CIDDay.put(cid, tset);
+                                }else{
+                                    TreeSet<Integer> addset = new TreeSet<>();
+                                    for(Integer dayx : StructMap.get(seq).CIDDay.get(cid)){
+                                        for(Integer dayy : StructMap.get(compseq).CIDDay.get(cid)){
+                                            if(dayx == dayy){
+                                                addset.add(dayx);
+                                            }
+                                        }
+                                    }
+                                    if(addset.size()>0){
+                                        temp.CIDDay.put(cid, addset);
+                                        temp.CIDList.add(cid);
+                                    }
+                                }
+                                
+                            }           
+                            StructMap.put(candidate, temp);
+                            canset.add(candidate);
+                        }else{
+                            SequenceStruct temp = new SequenceStruct();
+                            SeqID tid = new SeqID();
+                            tid.ID = candidate;
+                            temp.SeqId = tid;
+                            temp.Seqlengh = lv+1;
+
+                            HashSet<Integer> set = SameCidFunc(StructMap.get(seq).CIDList, StructMap.get(compseq).CIDList);
+                        
+                            if(set.size()>0){
+                                for(Integer cid : set){
+
+                                    TreeSet<Integer> adddayset = new TreeSet<>();
+
+                                    for(Integer xd : StructMap.get(seq).CIDDay.get(cid)){
+                                        for(Integer yd : StructMap.get(compseq).CIDDay.get(cid)){
+                                            if(xd != null && yd != null){
+                                                if(yd.equals(xd)){
+                                                    adddayset.add(yd);
+                                                }
+                                            }
+                                        }
+                                        if(adddayset.size()>0){
+                                            temp.CIDList.add(cid);
+                                            temp.CIDDay.put(cid, adddayset);
                                         }
                                     }
                                 }
@@ -456,15 +606,12 @@ public class main_SPStream_insert{
                                 canset.add(candidate);
                             }
                         }
-                        
-                    }else{//x2.last獨立項目及
-                        //System.out.println("x2.last");
-                        
-                        
-                        String candidate = candiIdStream(seq, compseq);
-                        
-                        //System.out.println("candidatex2.last獨立項目及: "+candidate);
-                        
+
+
+
+                    }else if(seq.equals(compseq)){ //<AB> <AB> <ABB> <(ABV)> <(ABV)> <(ABVV)>
+                        String candidate = seq + funclastitem(seq) + "#";
+
                         if(StructMap.containsKey(candidate)){
                             SequenceStruct temp = StructMap.get(candidate);
                             HashSet<Integer> set = funchasnewday(compseq ,nowday);
@@ -497,111 +644,161 @@ public class main_SPStream_insert{
                                 //System.out.println("candida: "+candidate+" temp: "+temp.CIDDay);
                                 canset.add(candidate);
                             }
-                            
                         }else{
                             SequenceStruct temp = new SequenceStruct();
-                            //System.out.println("checkcandidate:"+candidate);
                             SeqID tid = new SeqID();
                             tid.ID = candidate;
                             temp.SeqId = tid;
-                            temp.Seqlengh = lv+1;
-                            //System.out.println("lv"+ temp.Seqlengh);
-                            
+                            temp.Seqlengh = lv+1;                            
                             HashSet<Integer> set = SameCidFunc(StructMap.get(seq).CIDList, StructMap.get(compseq).CIDList);
                             //System.out.println("set:"+ set);
                             if(set.size()>0){
                                 for(Integer cid : set){
-                                    //System.out.println("cid = "+cid);
                                     TreeSet<Integer> adddayset = new TreeSet<>();
                                     for(Integer yd : StructMap.get(compseq).CIDDay.get(cid)){
-                                        //System.out.println("yd : "+yd);
-                                        //System.out.println("first: "+StructMap.get(seq).CIDDay.get(cid).first());
                                         if(StructMap.get(seq).CIDDay.containsKey(cid)){
                                             if(yd > StructMap.get(seq).CIDDay.get(cid).first()){
                                                 adddayset.add(yd);
                                             }
                                         }
                                     }
-                                    
                                     if(adddayset.size()>0){
                                         temp.CIDList.add(cid);
                                         temp.CIDDay.put(cid, adddayset);
-                                        //System.out.println("cid: "+cid+" add : "+adddayset);
                                     }
-                                    
                                 }
-                                //System.out.println("check");
                                 StructMap.put(candidate, temp);
                                 canset.add(candidate);
-
                             }  
                         }
-                    }
 
-                }
-                //*********************************************************************** */
-                if(prefixcom.equals(postfixseq)){//cb "bc"
-                    //2case
-                    String[] check = seq.split("#");
-                    //System.out.println("888 : "+check[check.length-1]);
-                    if(check[check.length-1].contains("&")){//x2.last不是獨立項目及
-                        String candidate = candiIdTogeter(compseq, seq);
-                        
-                        if(StructMap.containsKey(candidate)){
-                            
-                            //System.out.println("candidatex2.last不是獨立項目及 : "+candidate);
-                            SequenceStruct temp = StructMap.get(candidate);
-                            
-                            /*System.out.println("Seq: "+StructMap.get(seq).CIDDay);
-                            System.out.println("com: "+StructMap.get(compseq).CIDDay);
-                            System.out.println("can"+StructMap.get(candidate).CIDDay);
-                            System.out.println("seq: "+ seq);
-                            System.out.println("com: "+ compseq);
-                            System.out.println("day++: "+nowday);*/
-                            HashSet<Integer> set = funchasnewday(compseq, seq, nowday);
-                            //System.out.println("set23: "+set);
-                            for(Integer cid : set){
-                            
-                                if(temp.CIDDay.keySet().contains(cid)){
-                                    temp.CIDList.add(cid);
-                                    TreeSet<Integer> tset = new TreeSet<>();
-                                    tset = temp.CIDDay.get(cid);
-                                    tset.add(nowday);
-                                    if(tset.size()>0){
-                                        temp.CIDDay.put(cid, tset);
-                                        temp.CIDList.add(cid);
-                                    }
-                                }else{
-                                    TreeSet<Integer> addset = new TreeSet<>();
-                                    for(Integer dayx : StructMap.get(compseq).CIDDay.get(cid)){
-                                        for(Integer dayy : StructMap.get(seq).CIDDay.get(cid)){
-                                            //System.out.println("cid : "+ cid+" dayx : "+dayx+" dayy : " + dayy);
-                                            if(dayx == dayy){
-                                                addset.add(dayx);
+
+                    }else{//<(AB)> <AC> <(AB)C>
+                        String[] checkc = compseq.split("#");
+                        String[] checks = seq.split("#");
+                        String candidate1 = "";
+                        String candidate2 = "";
+                        if(checkc[checkc.length-1].contains("&")){
+                            candidate1 = compseq + funclastitem(seq) + "#" ;
+
+                        }else if(checks[checks.length-1].contains("&")){
+                            candidate2 = seq + funclastitem(compseq) + "#" ;
+                        }
+                        if(candidate1 != ""){
+                            if(StructMap.containsKey(candidate1)){
+                                SequenceStruct temp = StructMap.get(candidate1);
+                                HashSet<Integer> set = funchasnewday(compseq ,nowday);
+                                //System.out.println("candida: "+candidate+" temp: "+temp.CIDDay);
+                                if(set.size() > 0){ 
+                                    for(Integer cid : set){
+                                        if(temp.CIDList.contains(cid)){
+                                            //System.out.println("cid: "+cid+" value "+temp.CIDDay.get(cid));
+                                            temp.CIDDay.get(cid).add(nowday);
+                                            //System.out.println("cid: "+cid+" day: "+nowday);
+                                        }else{
+                                            if(StructMap.get(seq).CIDList.contains(cid)){
+                                                TreeSet<Integer> sset = new TreeSet<>();
+                                                for(Integer cday : StructMap.get(compseq).CIDDay.get(cid)){
+                                                    if(StructMap.get(seq).CIDDay.containsKey(cid)){
+                                                        if(cday > StructMap.get(seq).CIDDay.get(cid).first()){
+                                                            sset.add(cday);
+                                                            //System.out.println("cid: "+cid+" cday: "+cday);
+                                                        }
+                                                    }
+                                                }
+                                                if(sset.size()>0){
+                                                    temp.CIDDay.put(cid, sset);
+                                                    temp.CIDList.add(cid);
+                                                }
                                             }
                                         }
                                     }
+                                    StructMap.put(candidate1, temp);
+                                    //System.out.println("candida: "+candidate+" temp: "+temp.CIDDay);
+                                    canset.add(candidate1);
                                 }
-                            }           
-                            StructMap.put(candidate, temp);
-                            canset.add(candidate);
-                        }else{
-                            
-                            SequenceStruct temp = new SequenceStruct();
-                            SeqID tid = new SeqID();
-                            tid.ID = candidate;
-                            temp.SeqId = tid;
-                            temp.Seqlengh = lv+1;
-                            HashSet<Integer> set = SameCidFunc(StructMap.get(seq).CIDList, StructMap.get(compseq).CIDList);
-                            //System.out.println(seq +" : "+StructMap.get(seq).CIDDay);
-                            //System.out.println(compseq +" : "+StructMap.get(compseq).CIDDay);
-                            //System.out.println("set: "+set);
-                            if(set.size()>0){
-                                for(Integer cid : set){
-                                    TreeSet<Integer> adddayset = new TreeSet<>();
-                                    for(Integer xd : StructMap.get(compseq).CIDDay.get(cid)){
+                                
+                            }else{
+                                SequenceStruct temp = new SequenceStruct();
+                                //System.out.println("checkcandidate:"+candidate);
+                                SeqID tid = new SeqID();
+                                tid.ID = candidate1;
+                                temp.SeqId = tid;
+                                temp.Seqlengh = lv+1;
+                                //System.out.println("lv"+ temp.Seqlengh);
+                                
+                                HashSet<Integer> set = SameCidFunc(StructMap.get(seq).CIDList, StructMap.get(compseq).CIDList);
+                                //System.out.println("set:"+ set);
+                                if(set.size()>0){
+                                    for(Integer cid : set){
+                                        //System.out.println("cid = "+cid);
+                                        TreeSet<Integer> adddayset = new TreeSet<>();
+                                        for(Integer yd : StructMap.get(compseq).CIDDay.get(cid)){
+                                            //System.out.println("yd : "+yd);
+                                            //System.out.println("first: "+StructMap.get(seq).CIDDay.get(cid).first());
+                                            if(StructMap.get(seq).CIDDay.containsKey(cid)){
+                                                if(yd > StructMap.get(seq).CIDDay.get(cid).first()){
+                                                    adddayset.add(yd);
+                                                }
+                                            }
+                                        }
+                                        
+                                        if(adddayset.size()>0){
+                                            temp.CIDList.add(cid);
+                                            temp.CIDDay.put(cid, adddayset);
+                                            //System.out.println("cid: "+cid+" add : "+adddayset);
+                                        }
+                                        
+                                    }
+                                    //System.out.println("check");
+                                    StructMap.put(candidate1, temp);
+                                    canset.add(candidate1);
+    
+                                }  
+                            }
+                        }else if (candidate2 != ""){
+                            if(StructMap.containsKey(candidate2)){
+                                SequenceStruct temp = StructMap.get(candidate2);
+                                HashSet<Integer> set = funchasnewday(seq, nowday);
+                                
+                                if(set.size() > 0){ 
+                                    for(Integer cid : set){
+                                        if(temp.CIDList.contains(cid)){
+                                            temp.CIDDay.get(cid).add(nowday);
+                                        }else{
+                                            if(StructMap.get(compseq).CIDList.contains(cid)){
+                                                TreeSet<Integer> sset = new TreeSet<>();
+                                                for(Integer cday : StructMap.get(seq).CIDDay.get(cid)){
+                                                    if(StructMap.get(compseq).CIDDay.containsKey(cid)){
+                                                        if(cday > StructMap.get(compseq).CIDDay.get(cid).first()){
+                                                            sset.add(cday);
+                                                        }
+                                                    }
+                                                }
+                                                if(sset.size()>0){
+                                                    temp.CIDDay.put(cid, sset);
+                                                    temp.CIDList.add(cid);
+                                                }
+                                            }
+                                        }
+                                    }
+                                    StructMap.put(candidate2, temp);
+                                    canset.add(candidate2);
+                                }
+                            }else{
+                                SequenceStruct temp = new SequenceStruct();
+                                SeqID tid = new SeqID();
+                                tid.ID = candidate2;
+                                temp.SeqId = tid;
+                                temp.Seqlengh = lv+1;
+                                
+                                HashSet<Integer> set = SameCidFunc(StructMap.get(seq).CIDList, StructMap.get(compseq).CIDList);
+                                
+                                if(set.size()>0){
+                                    for(Integer cid : set){
+                                        TreeSet<Integer> adddayset = new TreeSet<>();
                                         for(Integer yd : StructMap.get(seq).CIDDay.get(cid)){
-                                            if(yd.equals(xd)){
+                                            if(yd > StructMap.get(compseq).CIDDay.get(cid).first()){
                                                 adddayset.add(yd);
                                             }
                                         }
@@ -609,98 +806,37 @@ public class main_SPStream_insert{
                                             temp.CIDList.add(cid);
                                             temp.CIDDay.put(cid, adddayset);
                                         }
+                                        
                                     }
+                                    StructMap.put(candidate2, temp);
+    
+                                    canset.add(candidate2);
                                 }
-                                StructMap.put(candidate, temp);
-                                canset.add(candidate);
-                            }
-                        }
-                    }else{//x2.last獨立項目及
-                        //System.out.println("x2.last99999999");
-                        String candidate = candiIdStream(compseq, seq);
-                        //System.out.println("first : ");
-                        //System.out.println("candidatex2.last獨立項目及 : "+candidate);
-                      
-                        
-                        if(StructMap.containsKey(candidate)){
-                            /*System.out.println("contain");
-                            System.out.println("candidate: "+ candidate);
-                            System.out.println("id: "+ StructMap.get(candidate).SeqId.ID);
-                            System.out.println("CIDLIST: "+ StructMap.get(candidate).CIDList);
-                            System.out.println("DAYLIST: "+ StructMap.get(candidate).CIDDay);
-                            System.out.println("Lengh: "+ StructMap.get(candidate).Seqlengh);*/
-                            SequenceStruct temp = StructMap.get(candidate);
-                            //System.out.println("candidate: "+candidate);
-                            HashSet<Integer> set = funchasnewday(seq, nowday);
-                            /*System.out.println("funchaseneq.id : " +seq);
-                            System.out.println("this?set: "+set);*/
-                            //System.out.println("set: "+set);
-                            if(set.size() > 0){ 
-                                for(Integer cid : set){
-                                    if(temp.CIDList.contains(cid)){
-                                        temp.CIDDay.get(cid).add(nowday);
-                                    }else{
-                                        if(StructMap.get(compseq).CIDList.contains(cid)){
-                                            TreeSet<Integer> sset = new TreeSet<>();
-                                            for(Integer cday : StructMap.get(seq).CIDDay.get(cid)){
-                                                if(StructMap.get(compseq).CIDDay.containsKey(cid)){
-                                                    if(cday > StructMap.get(compseq).CIDDay.get(cid).first()){
-                                                        sset.add(cday);
-                                                    }
-                                                }
-                                            }
-                                            if(sset.size()>0){
-                                                temp.CIDDay.put(cid, sset);
-                                                temp.CIDList.add(cid);
-                                            }
-                                        }
-                                    }
-                                }
-                                StructMap.put(candidate, temp);
-                                canset.add(candidate);
-                            }
-                        }else{
-                            //System.out.println("nocontain");
-                            SequenceStruct temp = new SequenceStruct();
-                            SeqID tid = new SeqID();
-                            tid.ID = candidate;
-                            temp.SeqId = tid;
-                            temp.Seqlengh = lv+1;
-                            /*System.out.println("tid.id: "+temp.SeqId.ID);
-                            System.out.println("seqlist"+StructMap.get(seq).CIDDay);
-                            System.out.println("comlist"+StructMap.get(compseq).CIDDay);*/
-                            HashSet<Integer> set = SameCidFunc(StructMap.get(seq).CIDList, StructMap.get(compseq).CIDList);
-                            
-                            //System.out.println("set: "+set);
-                            
-                            if(set.size()>0){
-                                for(Integer cid : set){
-                                    TreeSet<Integer> adddayset = new TreeSet<>();
-                                    for(Integer yd : StructMap.get(seq).CIDDay.get(cid)){
-                                        //System.out.println("yd: "+yd);
-                                        if(yd > StructMap.get(compseq).CIDDay.get(cid).first()){
-                                            adddayset.add(yd);
-                                        }
-                                    }
-                                    if(adddayset.size()>0){
-                                        temp.CIDList.add(cid);
-                                        temp.CIDDay.put(cid, adddayset);
-                                        //System.out.println("cid: "+cid+"add: "+adddayset);
-                                    }
-                                    
-                                }
-                                StructMap.put(candidate, temp);
-                                //System.out.println("candida: "+candidate+" temp: "+temp.CIDDay);
-
-                                canset.add(candidate);
                             }
                         }
                     }
+
                 }
             }    
         }
-        //System.out.println("retrun canset: "+canset);
+        System.out.println("retrun canset: "+canset);
         return canset;//return canset
+    }
+
+    private static String funcgenerationcheck(String seq){
+        String str = seq.substring(0, seq.length()-1);
+        int idx1 = str.lastIndexOf("#");
+        int idx2 = str.lastIndexOf("&");
+        int idx = (idx1 > idx2) ? idx1 : idx2;
+        return str.substring(idx, idx+1);
+    }
+
+    private static String funclastitem(String seq){
+        String str = seq.substring(0, seq.length()-1);
+        int idx1 = str.lastIndexOf("#");
+        int idx2 = str.lastIndexOf("&");
+        int idx = (idx1 > idx2) ? idx1 : idx2;
+        return str.substring(idx+1);
     }
 
     // prefix x 

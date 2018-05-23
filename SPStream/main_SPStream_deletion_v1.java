@@ -90,10 +90,10 @@ public class main_SPStream_deletion_v1{
 
     //input seq, candidate, delinfo  return candidate delInfomation
     private static TreeMap<Integer, TreeSet<Integer>> deldaylist(String seq, String candidate, TreeMap<Integer, TreeSet<Integer>> tMap){
-        System.out.println("func deldaylist!!!!!!!!!!!!!!!!!!");
+        /*System.out.println("func deldaylist!!!!!!!!!!!!!!!!!!");
         System.out.println("seq: " + seq);
         System.out.println("candidate: " + candidate);
-        System.out.println("tMap(delinfo): " + tMap);
+        System.out.println("tMap(delinfo): " + tMap);*/
         TreeMap<Integer, TreeSet<Integer>> delInfo = new TreeMap<>();
 
         SequenceStruct seqstruct = StructMap.get(seq);
@@ -110,30 +110,30 @@ public class main_SPStream_deletion_v1{
             if(candistruct.CIDList.contains(cid)){
                 TreeSet<Integer> candidayset = candistruct.CIDDay.get(cid);
                 TreeSet<Integer> origdayset = seqstruct.CIDDay.get(cid);
-                System.out.println("seq: "+ seq);
+                /*System.out.println("seq: "+ seq);
                 System.out.println("seqstruct.CIDDay: " + seqstruct.CIDDay);
                 System.out.println("candidate: "+ candidate);
                 System.out.println("cid: " + cid);
-                System.out.println("origdayset: " + origdayset);
+                System.out.println("origdayset: " + origdayset);*/
                 String[] check = candidate.split("#");
                 if(check[check.length-1].contains("&")){//不是獨立項目及
-                    TreeSet<Integer> tset = func_togerdel(tMap.get(cid), candidayset); //(tMap.get(cid), origdayset)
+                    TreeSet<Integer> tset = func_togerdel(tMap.get(cid), candidayset); 
                     if(tset != null){
                         delInfo.put(cid, tset);
-                        System.out.println("func_togerdel :" + cid + " "  + tset );
+                        //System.out.println("func_togerdel :" + cid + " "  + tset );
                     }
                 }else{//candistruct is 獨立項目及
                     TreeSet<Integer> tset = func_onlydel(tMap.get(cid).last(), candidayset, origdayset);
                     if(tset != null){
                         delInfo.put(cid, tset);
-                        System.out.println("func_onlydel :" + cid + " "  + tset );
+                        //System.out.println("func_onlydel :" + cid + " "  + tset );
                     }
                 }
             }else{
                 //do nothing
             }
         }
-        System.out.println("seq: "+ seq+ " candidate : " + candidate + " delInfo: " + delInfo);
+        //System.out.println("seq: "+ seq+ " candidate : " + candidate + " delInfo: " + delInfo);
         return delInfo;
     }
 
@@ -491,8 +491,8 @@ public class main_SPStream_deletion_v1{
     }
     private static TreeSet<Integer> func_togerdel(TreeSet<Integer> lastdelday, TreeSet<Integer> canditset){
         TreeSet<Integer> removeset = new TreeSet<>();
-        System.out.println("lastdelday: " + lastdelday);
-        System.out.println("canditset: " + canditset);
+        //System.out.println("lastdelday: " + lastdelday);
+        //System.out.println("canditset: " + canditset);
         for(Integer day : canditset){
             for(Integer k : lastdelday){
                 if(day == k){
@@ -1269,8 +1269,6 @@ public class main_SPStream_deletion_v1{
     
 
     public static void main(String[] args) throws IOException {
-
-        
         double startT = 0;
         double endT = 0;
         
@@ -1281,11 +1279,8 @@ public class main_SPStream_deletion_v1{
 
         String line = "";
         boolean EndDay = false;
-        startT = System.currentTimeMillis();
         
-        MemoryLogger.getInstance().reset();
-        
-        
+           
         while(EndDay == false){
             System.out.println("-------------");
             System.out.println("Day : " + nowday);
@@ -1447,16 +1442,13 @@ public class main_SPStream_deletion_v1{
                                         create sequence struct
  **********************************************************************************************************************/
         //MemoryLogger.getInstance().checkMemory();
-        endT = System.currentTimeMillis();
         System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@");
         int i =0;
         
-        double t = (endT - startT);
-        System.out.println("Time : "+t/1000 + " sec");
-        System.out.println( "Memory increased:" + MemoryLogger.getInstance().getMaxMemory() + " MB");
+        
         //System.out.println("SUP: "+CIDList.size());
         //System.out.println("f: "+i);
-        System.out.println("befor keyset: "+StructMap.keySet());
+        //System.out.println("befor keyset: "+StructMap.keySet());
         System.out.println("done");
         
         
@@ -1469,25 +1461,23 @@ public class main_SPStream_deletion_v1{
  * 
  * 
 */      
+
+
+        startT = System.currentTimeMillis();
+        MemoryLogger.getInstance().reset();
         // put frequent pattern 
         ArrayList<String> sequencepattern = new ArrayList<>();
-        
         // start del
         while(nowdelday <3){
             System.out.println("////////////////////////////////////////////////////");
             System.out.println("now del day is " + nowdelday);
             ArrayList<String> beforefseq = new ArrayList<>();
             //put sequence pattern
-            System.out.println("check 40#: "+ StructMap.get("40#").CIDDay);
-            System.out.println("check 40#: "+ StructMap.get("40#").CIDList.size());
-            System.out.println("(int) Math.ceil(CIDList.size()* minsup): " + (int) Math.ceil(CIDList.size()* minsup));
             for(String k : StructMap.keySet()){
                 if(StructMap.get(k).CIDList.size() >= (int) Math.ceil(CIDList.size()* minsup) ){
                     beforefseq.add(k);
                 }
             }
-            
-            System.out.println("beforefseq: " + beforefseq);
             
             TreeMap<String, TreeMap<Integer, TreeSet<Integer>>> delItemdaylistInfoMap = new TreeMap<>();
             //check minsup
@@ -1529,15 +1519,12 @@ public class main_SPStream_deletion_v1{
                 }
             }
             afterMinSupCount = (int) Math.ceil(Cidset.size() * minsup);
-            System.out.println("afterMinSupCount: " + afterMinSupCount);
             CIDList.clear();
             for(Integer ii: Cidset){
                 CIDList.add(ii);
             }
             ArrayList<String> frequentsequencelist = new ArrayList<>();
             int lv = 1;
-            System.out.println("check 40#: "+ StructMap.get("40#").CIDDay);
-            System.out.println("check 40#: "+ StructMap.get("40#").CIDList);
             //直到組合不出來
             while(/*frequentsequencelist.size() > 1 */lv < 5){
                 //put k+1.freqent
@@ -1609,7 +1596,7 @@ public class main_SPStream_deletion_v1{
                     }
                 }
                 
-                System.out.println("frequentsequencelist: " + frequentsequencelist);
+                //System.out.println("frequentsequencelist: " + frequentsequencelist);
                 //create to each other 
                 createfreqfunc(inf2flist, lv);
 
@@ -1618,10 +1605,11 @@ public class main_SPStream_deletion_v1{
                 lv++;
             }
             sequencepattern = frequentsequencelist;
-            System.out.println("sequencepattern: " +sequencepattern );
+            //System.out.println("sequencepattern: " +sequencepattern );
             //next day
             Cidset.clear();
             nowdelday++;
+            /*
             for(String str : StructMap.keySet()){
                 //if(StructMap.get(str).Seqlengh){
                     System.out.println("ID: " + str);
@@ -1630,12 +1618,16 @@ public class main_SPStream_deletion_v1{
                     System.out.println("CiDDay: " + StructMap.get(str).CIDDay);
                     System.out.println(">>>>>>>");
                 //}
-            }
+            }*/
             
         }
 
+        endT = System.currentTimeMillis();
 
-        System.out.println(StructMap.keySet());
+        //System.out.println(StructMap.keySet());
+        System.out.println( "Memory increased:" + MemoryLogger.getInstance().getMaxMemory() + " MB");
+        double t = (endT - startT);
+        System.out.println("Time : "+t/1000 + " sec");
         System.out.println("del done");
         
 
