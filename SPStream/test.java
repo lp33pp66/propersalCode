@@ -366,27 +366,13 @@ public class test {
 
 
     public static void main(String[] args) {
-        String seq = "30&50#";
-        String compseq = "30#40#";
-        
-        String candidata1 = seq + funclastitem(compseq) + "#";
-        String candidata2 = compseq +funclastitem(seq) + "#";
-        String candidata3 = funclast( seq ) + "#" + funclastitem(( Integer.parseInt(funclastitem(seq)) < Integer.parseInt(funclastitem(compseq))  ) ? seq : compseq ) + "&" + funclastitem(( Integer.parseInt(funclastitem(seq)) > Integer.parseInt(funclastitem(compseq))  ) ? seq : compseq )+"#";
-        String candidate4 = funclast( seq ) + "&" + funclastitem(( Integer.parseInt(funclastitem(seq)) < Integer.parseInt(funclastitem(compseq))  ) ? seq : compseq ) + "&" + funclastitem(( Integer.parseInt(funclastitem(seq)) > Integer.parseInt(funclastitem(compseq))  ) ? seq : compseq )+"#";
-        System.out.println(candidata1);
-        System.out.println(candidata2);
-        System.out.println(candidata3);
-        System.out.println(candidate4);
-        System.out.println( seq + funclastitem(seq) + "#");
-        String[] checkc = compseq.split("#");
-        String[] checks = seq.split("#");
-        String candidate = "";
-        if(checkc[checkc.length-1].contains("&")){
-            candidate = compseq + funclastitem(seq) + "#" ;
-        }else if(checks[checks.length-1].contains("&")){
-            candidate = seq + funclastitem(compseq) + "#" ;
-        }
+        String seq = "30#20&30#";
+        String compseq = "30#20&40#";
+        String candidate = funclast( seq ) + "&" + funclastitem(( Integer.parseInt(funclastitem(seq)) < Integer.parseInt(funclastitem(compseq))  ) ? seq : compseq ) + "&" + funclastitem(( Integer.parseInt(funclastitem(seq)) > Integer.parseInt(funclastitem(compseq))  ) ? seq : compseq )+"#";
         System.out.println(candidate);
+        System.out.println(        funcgenerationcheck(seq));
+
+        System.out.println        (funcgenerationcheck(compseq));
 
 
     }

@@ -303,13 +303,15 @@ public class main_SPStream_insert_AprioriAll{
             HashSet<String> freqset = new HashSet<>();
             
             for(String seq : canset){
-                 System.out.println("seq: "+StructMap.containsKey(seq));
+                System.out.println("seq: "+StructMap.containsKey(seq));
                 if(StructMap.containsKey(seq)){
                     if(StructMap.get(seq).CIDList.size() >= MinSupCount){
                         freqset.add(seq);
                     } 
                 }
             }
+            //System.out.println("lv: " + lv + " freqset: " + freqset);
+
             //
             HashSet<String> rcanset =  generation(freqset, lv, nowday, MinSupCount);
             //add delfunc
@@ -348,11 +350,13 @@ public class main_SPStream_insert_AprioriAll{
                 String prefixcom = funcfirst(compseq);
                 String postfixcom = funclast(compseq );
                 
-                //System.out.println("compseq:"+ compseq + " postfixcom: " + postfixcom  );
-                //System.out.println("seq"+ seq + " postfixseq: " + postfixseq);
-                //System.out.println();
                 if(postfixcom.equals(postfixseq)){
-                    
+                    /*System.out.println("seq: " + seq + " compseq: " + compseq);
+                    System.out.println("seq: "+StructMap.get(seq).CIDDay);
+                    System.out.println("seq: " + funcgenerationcheck(seq));
+                    System.out.println("compseq: " +StructMap.get(compseq).CIDDay);
+                    System.out.println("compseq: " + funcgenerationcheck(compseq));
+                    System.out.println();*/
                     //3case
                     if((funcgenerationcheck(seq).equals("#")) && (funcgenerationcheck(compseq).equals("#") ) ){//<AB> <AC> <ABC> <ACB> <A(BC)>
                         
@@ -542,9 +546,12 @@ public class main_SPStream_insert_AprioriAll{
                             }
                         }
                     
-                    }else if((funcgenerationcheck(seq) == "&") && (funcgenerationcheck(compseq) == "&")){//<()> <()> <()>
-                        String candidate = funclast( seq ) + "&" + funclastitem(( Integer.parseInt(funclastitem(seq)) < Integer.parseInt(funclastitem(compseq))  ) ? seq : compseq ) + "&" + funclastitem(( Integer.parseInt(funclastitem(seq)) > Integer.parseInt(funclastitem(compseq))  ) ? seq : compseq )+"#";
+                    }else if((funcgenerationcheck(seq).equals("&")) && (funcgenerationcheck(compseq).equals("&"))){//<()> <()> <()>
+                        System.out.println("else if   seq: " + seq + " compseq: " + compseq);
 
+                        
+                        String candidate = funclast( seq ) + "&" + funclastitem(( Integer.parseInt(funclastitem(seq)) < Integer.parseInt(funclastitem(compseq))  ) ? seq : compseq ) + "&" + funclastitem(( Integer.parseInt(funclastitem(seq)) > Integer.parseInt(funclastitem(compseq))  ) ? seq : compseq )+"#";
+                        System.out.println(seq+ " " + compseq + " " + candidate);
                         if(StructMap.containsKey(candidate)){
                             SequenceStruct temp = StructMap.get(candidate);
                             HashSet<Integer> set = funchasnewday(seq, compseq, nowday);
@@ -819,7 +826,7 @@ public class main_SPStream_insert_AprioriAll{
                 }
             }    
         }
-        System.out.println("retrun canset: "+canset);
+        //System.out.println("retrun canset: "+canset);
         return canset;//return canset
     }
 
@@ -878,7 +885,6 @@ public class main_SPStream_insert_AprioriAll{
         
         return candi;
     }
-
 
     //input 2.candidatehas noupdate
     private static void delfunc(HashSet<String> noUpdateCandidateSet, HashSet<String> frequentseq, int lv, int MinSupCount){
@@ -1110,13 +1116,13 @@ public class main_SPStream_insert_AprioriAll{
         //System.out.println(StructMap.keySet());
         for(String k : StructMap.keySet()){
         //String k = "30#20&30&40#";
-        if(StructMap.get(k).CIDList.size() >=(int) Math.ceil(CIDList.size() * minsup) ){
+        if(StructMap.get(k).CIDList.size() >=(int) Math.ceil(CIDList.size() * minsup)){
             //i++;
-            //System.out.println("ID : "+StructMap.get(k).SeqId.ID);
+            System.out.println("ID : "+StructMap.get(k).SeqId.ID);
             /*System.out.println("CIDList : "+StructMap.get(k).CIDList);
             System.out.println("CIDDay : "+StructMap.get(k).CIDDay);
-            System.out.println("lengh : " + StructMap.get(k).Seqlengh);
-            System.out.println("===========");*/
+            System.out.println("lengh : " + StructMap.get(k).Seqlengh);*/
+            System.out.println("===========");
             }
             
         }

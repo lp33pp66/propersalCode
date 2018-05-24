@@ -974,13 +974,13 @@ public class main_SPStream_insert{
         //System.out.println(StructMap.keySet());
         for(String k : StructMap.keySet()){
         //String k = "30#20&30&40#";
-        if(StructMap.get(k).CIDList.size() >=(int) Math.ceil(CIDList.size() * minsup) ){
+        if(StructMap.get(k).CIDList.size() >=(int) Math.ceil(CIDList.size() * minsup)  ){
             //i++;
-            //System.out.println("ID : "+StructMap.get(k).SeqId.ID);
+            System.out.println("ID : "+StructMap.get(k).SeqId.ID);
             /*System.out.println("CIDList : "+StructMap.get(k).CIDList);
             System.out.println("CIDDay : "+StructMap.get(k).CIDDay);
-            System.out.println("lengh : " + StructMap.get(k).Seqlengh);
-            System.out.println("===========");*/
+            System.out.println("lengh : " + StructMap.get(k).Seqlengh);*/
+            System.out.println("===========");
             }
             
         }
