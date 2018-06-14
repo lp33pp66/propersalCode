@@ -1006,7 +1006,7 @@ public class G3Span
 		HashSet<String> Copy=new HashSet<>();
 		HashSet<String> Result=new HashSet<>();//長度為1且滿足minsupcount
 		HashSet<String> countcustomer=new HashSet<String>();
-		//LinkedList<Double> mmm=new LinkedList<>();
+		LinkedList<Double> mmm=new LinkedList<>();
 
 		TreeMap<String,Item> objitem=new TreeMap<String, Item>();
 		TreeMap<String,Item> objitem2=new TreeMap<>();
@@ -1016,7 +1016,7 @@ public class G3Span
 		int nOldDay = 1;
 		
 		double minsupcount=0;
-		double minsup=0.019;
+		double minsup=0.017;
 		boolean bEnd = false;
 		double time1, time2, time3,time4;
 		double starttime = System.currentTimeMillis();
@@ -1040,7 +1040,7 @@ public class G3Span
 			//BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("C:\\Users\\Gino\\Desktop\\��s�Ҹ��\\��������\\12-4test\\S4I2N1KD1K-5.csv"), "UTF8"));
 			//BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("C:\\12-1.txt"), "UTF8"));
 			//BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("../../DataSet/TestData/S4I2N1KD1K-5.csv"), "UTF8"));
-			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("../../DataSet/TestData/S10I2N1KD1K-3.csv"), "UTF8"));
+			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("../../DataSet/TestData/S4I2N1KD1K-3.csv"), "UTF8"));
 
 			//BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("C:\\Users\\Gino\\Desktop\\��s�Ҹ��\\��������\\12-4test\\S10I2N1KD1K-3.csv"), "UTF8"));
 
@@ -1118,7 +1118,7 @@ public class G3Span
 			 if((line = br.readLine()) == null)
 				{
 				 //time5 = System.currentTimeMillis();
-				 //System.out.println("原始 = "+  (time5-time3)/1000 + "秒");
+				 //System.out.println("原始 = " + time5-time3/1000 + "秒");
 				 bEnd = true;
 					br.close();
 				}
@@ -1184,14 +1184,14 @@ public class G3Span
 			writer.flush();
 			
 			  // if(nNowDay==8 ||nNowDay==15 ||nNowDay==22 || nNowDay==29 ||  nNowDay==36|| nNowDay==43 ||  nNowDay==50 || nNowDay==57 || nNowDay==64 ||  nNowDay==71 || nNowDay==78 ||nNowDay==85 || nNowDay==92 || nNowDay==99|| nNowDay==106 ||nNowDay==113)
-			 if(nNowDay==8 ||nNowDay==15 ||nNowDay==22 || nNowDay==29 ||  nNowDay==36|| nNowDay==43 ||  nNowDay==50 || nNowDay==57 || nNowDay==64 ||  nNowDay==71 || nNowDay==78 ||nNowDay==85 || nNowDay==92 || nNowDay==99|| nNowDay==106 ||nNowDay==113||nNowDay==120||nNowDay==127||nNowDay==134||nNowDay==141||nNowDay==148||nNowDay==155||nNowDay==162||nNowDay==169)
+			 if( nNowDay == 0 ||nNowDay==8 ||nNowDay==15 ||nNowDay==22 || nNowDay==29 ||  nNowDay==36|| nNowDay==43 ||  nNowDay==50 || nNowDay==57 || nNowDay==64 ||  nNowDay==71 || nNowDay==78 ||nNowDay==85 || nNowDay==92 || nNowDay==99|| nNowDay==106 ||nNowDay==113||nNowDay==120||nNowDay==127||nNowDay==134||nNowDay==141||nNowDay==148||nNowDay==155||nNowDay==162||nNowDay==169)
 
 			{
 				double temp=0;
 				
 				time4 = System.currentTimeMillis();
-				//System.out.println(nNowDay+"原始 = "+  (time4-time3)/1000 + "秒");
-				//mmm.add((time4-time3)/1000);
+				System.out.println(nNowDay+"原始 = "+  (time4-time3)/1000 + "秒");
+				mmm.add((time4-time3)/1000);
 				//System.out.println(mmm);
 				String a=null;
 				a=nNowDay-1+"原始 = "+  (time4-time3)/1000 + "秒";
@@ -1260,7 +1260,7 @@ public class G3Span
 	time2 = System.currentTimeMillis();
 	System.out.println("cidlist: "+countcustomer.size());
 	System.out.println("SUP: "+minsup);
-	
+	System.out.println("mmm: " + mmm);
 	System.out.println("nNowDay"+nNowDay+"時間:"+  (time2-starttime)/1000 + "秒");
 	long usedMemoryAfter = runtime.totalMemory() - runtime.freeMemory();
     System.out.println("Memory increased:" + MemoryLogger.getInstance().getMaxMemory()+" MB");

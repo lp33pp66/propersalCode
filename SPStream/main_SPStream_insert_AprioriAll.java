@@ -21,7 +21,7 @@ import spstream.MemoryLogger;
 
 public class main_SPStream_insert_AprioriAll{
     public static int nowday = 1;
-    public static double minsup = 0.019;
+    public static double minsup = 0.017;
     public static HashSet<Integer> CIDList = new HashSet<>();
     public static HashSet<Integer> itemList = new HashSet<>();// All 1-item set
     //public static ArrayList<SequenceStruct> SeqStructList = new ArrayList<>(); // all seqstruct
@@ -941,13 +941,14 @@ public class main_SPStream_insert_AprioriAll{
         
         HashSet<Integer> additem = new HashSet<>();
         BufferedReader bfr = new BufferedReader(
-            new FileReader("../../DataSet/TestData/S10I2N1KD1K-3.csv")
+            new FileReader("../../DataSet/TestData/S4I2N1KD1K-3.csv")
         );
 
         String line = "";
         boolean EndDay = false;
         startT = System.currentTimeMillis();
-        
+        ArrayList<String> timecode = new ArrayList<>();
+        double ttime = startT;
         MemoryLogger.getInstance().reset();
         
         
@@ -1106,30 +1107,40 @@ public class main_SPStream_insert_AprioriAll{
                 New2Candate.clear();
                 
             }
+            if(nowday == 0 || nowday == 7 ||nowday == 14 ||nowday == 21 ||nowday == 28 ||nowday == 35 ||nowday == 42 ||nowday == 49 ||nowday == 56 ||nowday == 63 ||nowday == 70 ){
+                double nowtime = System.currentTimeMillis();
+                
+                double midtime = nowtime - ttime;
+                ttime = nowtime;
+                timecode.add("Time"+nowday+ " : "+ midtime/1000 + " sec");
+                
+                
+            }
             
         }
         
         MemoryLogger.getInstance().checkMemory();
         endT = System.currentTimeMillis();
         System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@");
-        int i =0;
+        //int i =0;
         //System.out.println(StructMap.keySet());
         for(String k : StructMap.keySet()){
         //String k = "30#20&30&40#";
-        if(StructMap.get(k).CIDList.size() >=(int) Math.ceil(CIDList.size() * minsup)){
+        //if(StructMap.get(k).CIDList.size() >=(int) Math.ceil(CIDList.size() * minsup)){
             //i++;
-            System.out.println("ID : "+StructMap.get(k).SeqId.ID);
+            //System.out.println("ID : "+StructMap.get(k).SeqId.ID);
             /*System.out.println("CIDList : "+StructMap.get(k).CIDList);
             System.out.println("CIDDay : "+StructMap.get(k).CIDDay);
             System.out.println("lengh : " + StructMap.get(k).Seqlengh);*/
-            System.out.println("===========");
-            }
+            //System.out.println("===========");
+            //}
             
         }
         //System.out.println(i);
         
         double t = (endT - startT);
         System.out.println("Time : "+t/1000 + " sec");
+        System.out.println("timecode: " + timecode);
         System.out.println( "Memory increased:" + MemoryLogger.getInstance().getMaxMemory() + " MB");
         System.out.println("SUP: "+CIDList.size());
         //System.out.println("f: "+i);

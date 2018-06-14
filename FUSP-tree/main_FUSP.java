@@ -1,7 +1,5 @@
 package fusp;
 
-
-
 import fusp.FUSPNode;
 import fusp.FUSPTree;
 import java.io.BufferedReader;
@@ -21,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import fusp.MemoryLogger;
 
 /*
  * fusp growth()
@@ -31,45 +30,18 @@ import java.util.TreeSet;
  * 
  */
 
-
-
-
 public class main_FUSP{
-    //private long startT = 0;
-    //private long endT = 0;
-    //private int transcationcount = 0;
     private int itemsetCount; 
-
-    //fuspGrowth
-/*    private FUSPNode[] fuspNodeTempBuffer = null;
-    private int maxPatternLength = 1000;
-    BufferedWriter writer = null;
-    private int[] itemsetOutputBuffer = null;
-    private int[] itemsetBuffer = null;
-    final int BUFFER_SIZE = 2000;
-*/
-
-
-
-
-    public static double minsup = 0.05;
+    public static double minsup = 0.017;
     public static int nowday = 1;
     public static Set<Integer> CIDSet = new HashSet<>();
 
     //original customer sequence
     public static TreeMap<Integer, ArrayList<ArrayList<Integer>>> OCS = new TreeMap<>();
-
-    //newly insertd customer sequence
-    //public static TreeMap<Integer, ArrayList<ArrayList<Integer>>> NCS = new TreeMap<>();
-
+    
     //K:item, V:CID  size()=supcount
     public static HashMap<Integer, HashSet<Integer>> itemsup = new HashMap<>();
-
-    //temp lastitemsup
-    //public static HashMap<Integer, HashSet<Integer>> lastitemsup = new HashMap<>();
     
-    //Set<Integer> CIDset = new HashSet<>();
-
     //newlyTran.size = new data cid
     public static HashMap<Integer, ArrayList<Integer>> newlyTran = new HashMap<>();
 
@@ -167,6 +139,7 @@ public class main_FUSP{
         );
         return alist;        
     }
+
     private void fuspGrowth(FUSPTree tree) {
         for(Integer k : tree.headerList){
             FUSPNode currNode = tree.mapItemNodes.get(k);
@@ -183,19 +156,13 @@ public class main_FUSP{
     public static void main(String[] args) throws IOException{
         HashMap<Integer, HashSet<Integer>> lastitemsup = new HashMap<>();
         BufferedReader bfr = new BufferedReader(
-            new FileReader("../../DataSet/TestData/S4I2_5N100D100_SPStream.csv"));
+            new FileReader("../../DataSet/TestData/S10I2N1KD1K-3.csv"));
             
         String line = "";
         boolean Endday = false; 
-        //HashMap<Integer, ArrayList<Integer>> daytran = new HashMap<>();
-        //ArrayList<Integer> itemlist = new ArrayList<Integer>();
-        //ArrayList<ArrayList<Integer>> tran = new ArrayList<>();
-        
-        //item sup
-        //HashMap<Integer, Integer> merageitemsup = new HashMap<>(); 
-        
-        long startT = 0;
-        long endT = 0;
+
+        double startT = 0;
+        double endT = 0;
         
         
         FUSPTree Tree = new FUSPTree();
@@ -224,9 +191,7 @@ public class main_FUSP{
                     
                     //add to itemsup total sup
                     AddTotalSup(data0, data1, data2);
-                    
-                    
-                    
+                       
                 }else if(data0 > nowday ){
                     System.out.println("day : " + nowday);
                     
@@ -296,10 +261,7 @@ public class main_FUSP{
                     );
                     //System.out.println("RSS " + Rescan_Seq);
                     //System.out.println("is "  + Insert_Seq);
-                    
-
- 
- 
+                
                     //rescan 
 
                     //insert bug  need create addRescanTranscan() function
@@ -570,8 +532,8 @@ public class main_FUSP{
         endT = System.currentTimeMillis();   
         System.out.println("--------------");
         System.out.println("done");
-        long t = (endT - startT);
-        System.out.println("Time : "+t + " miltime");
+        double t = (endT - startT);
+        System.out.println("Time : "+t/1000 + " sec");
 
         //System.out.println("itemsup : "+itemsup);
         //System.out.println("SUP : " + CIDSet.size()*minsup) ;

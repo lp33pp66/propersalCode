@@ -1629,19 +1629,7 @@ public class main_SPStream_deletion_v1{
         double t = (endT - startT);
         System.out.println("Time : "+t/1000 + " sec");
         System.out.println("del done");
-        
-
-/*
-                for(String str : StructMap.keySet()){
-                    if(StructMap.get(str).Seqlengh == 3 ){
-                        System.out.println("ID: " + str);
-                        System.out.println("sup: " + StructMap.get(str).CIDList.size());
-                        System.out.println("CidList: " + StructMap.get(str).CIDList);
-                        System.out.println("CiDDay: " + StructMap.get(str).CIDDay);
-                        System.out.println(">>>>>>>");
-                    }
-                }
-   */             
+                     
     }
     
 }

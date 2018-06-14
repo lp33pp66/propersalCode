@@ -37,10 +37,8 @@ public class FUSPTree{
         }else{
             System.out.println("t : "+ptr.itemID);
         }
-
     }
 
-    
     // add a:0, b:1, c:0
     public void addRescanTranscation(ArrayList<ArrayList<Integer>> retran, Integer item)throws IOException{
         FUSPNode currNode =  root;
@@ -161,7 +159,7 @@ public class FUSPTree{
             }
         }
 
-        void creatHeaderList(final Map<Integer, Integer> mapSupport)throws IOException{          
+        void creatHeaderList(final Map<Integer, Integer> mapSupport)throws IOException{//another headertable          
             /*System.out.println("mapsup : "+mapSupport);
             System.out.println("mapitemNode : " + mapItemNodes.keySet());
             System.out.println("headerlist : " + headerList);*/

@@ -18,7 +18,7 @@ import spstream.MemoryLogger;
 
 public class main_SPStream{
     public static int nowday = 1;
-    public static double minsup = 0.019;
+    public static double minsup = 0.014;
     public static HashSet<Integer> CIDList = new HashSet<>();
     public static HashSet<Integer> itemList = new HashSet<>();// All 1-item set
     public static ArrayList<SequenceStruct> SeqStructList = new ArrayList<>(); // all seqstruct
@@ -733,13 +733,14 @@ public class main_SPStream{
         
         HashSet<Integer> additem = new HashSet<>();
         BufferedReader bfr = new BufferedReader(
-            new FileReader("../../DataSet/TestData/S10I2N1KD1K-3.csv")
+            new FileReader("../../DataSet/TestData/S4I2N1KD1K-3.csv")
         );
 
         String line = "";
         boolean EndDay = false;
         startT = System.currentTimeMillis();
-        
+        ArrayList<String> timecode = new ArrayList<>();
+        double ttime = startT;
         MemoryLogger.getInstance().reset();
         
         
@@ -770,7 +771,7 @@ public class main_SPStream{
 
                 }else if(data0 > nowday){
                     //  do some thing
-                    int MinSupCount = (int) Math.ceil(/*CIDList.size()*/997 * minsup);
+                    int MinSupCount = (int) Math.ceil(/*CIDList.size()*/890 * minsup);
                     
                     for(Integer x : additem){
                         for(Integer y : itemList){
@@ -818,12 +819,12 @@ public class main_SPStream{
                                     
             }
             
-            endT = System.currentTimeMillis();
+            
             if(line == null){
                 EndDay = true;
                 bfr.close();
                 // do some thing
-                int MinSupCount = (int) Math.ceil(/*CIDList.size()*/997 * minsup);
+                int MinSupCount = (int) Math.ceil(/*CIDList.size()*/890 * minsup);
                 //System.out.println("key : " + StructMap.keySet());
 
                 for(Integer x : additem){
@@ -855,32 +856,28 @@ public class main_SPStream{
                     System.out.println("===========");
                 }*/
             }
-        MemoryLogger.getInstance().checkMemory();
 
-        }
-
-        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@");
-        //int i =0;
-        //System.out.println(StructMap.keySet());
-        //for(String k : StructMap.keySet()){
-        //String k = "30#20&30&40#";
-        //if(StructMap.get(k).CIDList.size() >=(int) Math.ceil(/*CIDList.size()*/5 * minsup) ){
-            //i++;
-            /*System.out.println("ID : "+StructMap.get(k).SeqId.ID);
-            System.out.println("CIDList : "+StructMap.get(k).CIDList);
-            System.out.println("CIDDay : "+StructMap.get(k).CIDDay);
-            System.out.println("lengh : " + StructMap.get(k).Seqlengh);
-            System.out.println("===========");*/
-            //}
+            if(nowday == 0 || nowday == 7 ||nowday == 14 ||nowday == 21 ||nowday == 28 ||nowday == 35 ||nowday == 42 ||nowday == 49 ||nowday == 56 ||nowday == 63 ||nowday == 70 ){
+                double nowtime = System.currentTimeMillis();
+                
+                double midtime = nowtime - ttime;
+                ttime = nowtime;
+                timecode.add("Time"+nowday+ " : "+ midtime/1000 + " sec");
+                
+                
+            }
             
-        //}
-        //System.out.println(i);
+        }
+        endT = System.currentTimeMillis();
+        MemoryLogger.getInstance().checkMemory();
+        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@");
         
         double t = (endT - startT);
         System.out.println("minsup: " + minsup);
         System.out.println("cidlist : "+CIDList.size());
         System.out.println("structsize : " + StructMap.size());
         System.out.println("Time : "+t/1000 + " sec");
+        System.out.println("timecode: " + timecode);
         System.out.println( "Memory increased:" + MemoryLogger.getInstance().getMaxMemory() + " MB");
         //System.out.println("f: "+i);
         System.out.println("done"); 
